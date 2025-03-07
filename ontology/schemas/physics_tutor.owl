@@ -1,0 +1,251 @@
+<?xml version="1.0"?>
+<rdf:RDF xmlns="http://www.semanticweb.org/ontologies/2024/physics_tutor#"
+     xml:base="http://www.semanticweb.org/ontologies/2024/physics_tutor"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:xml="http://www.w3.org/XML/1998/namespace"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
+    <owl:Ontology rdf:about="http://www.semanticweb.org/ontologies/2024/physics_tutor"/>
+
+    <!-- Classes -->
+    <owl:Class rdf:about="#Concept"/>
+    <owl:Class rdf:about="#PhysicalQuantity"/>
+    <owl:Class rdf:about="#Law"/>
+    <owl:Class rdf:about="#Unit"/>
+    <owl:Class rdf:about="#Formula"/>
+    <owl:Class rdf:about="#Principle"/>
+    <owl:Class rdf:about="#Example"/>
+    <owl:Class rdf:about="#Application"/>
+    <owl:Class rdf:about="#Topic"/>
+
+    <!-- Object Properties -->
+    <owl:ObjectProperty rdf:about="#hasPrerequisite">
+        <rdfs:domain rdf:resource="#Concept"/>
+        <rdfs:range rdf:resource="#Concept"/>
+    </owl:ObjectProperty>
+
+    <owl:ObjectProperty rdf:about="#hasUnit">
+        <rdfs:domain rdf:resource="#PhysicalQuantity"/>
+        <rdfs:range rdf:resource="#Unit"/>
+    </owl:ObjectProperty>
+
+    <owl:ObjectProperty rdf:about="#hasFormula">
+        <rdfs:domain rdf:resource="#Law"/>
+        <rdfs:range rdf:resource="#Formula"/>
+    </owl:ObjectProperty>
+
+    <owl:ObjectProperty rdf:about="#hasExample">
+        <rdfs:domain rdf:resource="#Concept"/>
+        <rdfs:range rdf:resource="#Example"/>
+    </owl:ObjectProperty>
+
+    <owl:ObjectProperty rdf:about="#isPartOf">
+        <rdfs:domain rdf:resource="#Concept"/>
+        <rdfs:range rdf:resource="#Topic"/>
+    </owl:ObjectProperty>
+
+    <owl:ObjectProperty rdf:about="#relatesTo">
+        <rdfs:domain rdf:resource="#Concept"/>
+        <rdfs:range rdf:resource="#Concept"/>
+    </owl:ObjectProperty>
+
+    <owl:ObjectProperty rdf:about="#hasApplication">
+        <rdfs:domain rdf:resource="#Concept"/>
+        <rdfs:range rdf:resource="#Application"/>
+    </owl:ObjectProperty>
+
+    <owl:ObjectProperty rdf:about="#isUsedIn">
+        <rdfs:domain rdf:resource="#PhysicalQuantity"/>
+        <rdfs:range rdf:resource="#Formula"/>
+    </owl:ObjectProperty>
+
+    <!-- Data Properties -->
+    <owl:DatatypeProperty rdf:about="#hasDefinition">
+        <rdfs:domain rdf:resource="#Concept"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+
+    <owl:DatatypeProperty rdf:about="#hasExplanation">
+        <rdfs:domain rdf:resource="#Example"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+
+    <owl:DatatypeProperty rdf:about="#hasDescription">
+        <rdfs:domain rdf:resource="#Application"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+
+    <!-- Topics -->
+    <Topic rdf:about="#NewtonsLaws">
+        <hasDefinition>The three fundamental laws that describe the relationship between forces and motion</hasDefinition>
+    </Topic>
+
+    <Topic rdf:about="#Kinematics">
+        <hasDefinition>The study of motion without considering its causes</hasDefinition>
+    </Topic>
+
+    <!-- Applications -->
+    <Application rdf:about="#RocketPropulsion">
+        <hasDescription>Rocket propulsion is based on Newton's Third Law - the rocket exerts force on exhaust gases, and the gases exert an equal and opposite force on the rocket</hasDescription>
+    </Application>
+
+    <Application rdf:about="#CarSafety">
+        <hasDescription>Car safety features like seatbelts and airbags are designed based on Newton's First Law - they help maintain the passenger's state of motion during a collision</hasDescription>
+    </Application>
+
+    <Application rdf:about="#SportsPerformance">
+        <hasDescription>Understanding Newton's Second Law helps athletes optimize their performance by maximizing force while minimizing mass</hasDescription>
+    </Application>
+
+    <!-- Physical Quantities -->
+    <PhysicalQuantity rdf:about="#Force">
+        <hasDefinition>Force is a push or pull that can change the motion of an object</hasDefinition>
+        <hasUnit rdf:resource="#Newton"/>
+        <isPartOf rdf:resource="#NewtonsLaws"/>
+        <relatesTo rdf:resource="#Acceleration"/>
+        <relatesTo rdf:resource="#Mass"/>
+        <hasApplication rdf:resource="#RocketPropulsion"/>
+        <hasApplication rdf:resource="#CarSafety"/>
+        <hasApplication rdf:resource="#SportsPerformance"/>
+        <isUsedIn rdf:resource="#FEqualsMA"/>
+        <isUsedIn rdf:resource="#InertiaFormula"/>
+        <isUsedIn rdf:resource="#ActionReactionFormula"/>
+    </PhysicalQuantity>
+
+    <PhysicalQuantity rdf:about="#Mass">
+        <hasDefinition>Mass is a measure of the amount of matter in an object</hasDefinition>
+        <hasUnit rdf:resource="#Kilogram"/>
+        <isPartOf rdf:resource="#NewtonsLaws"/>
+        <relatesTo rdf:resource="#Force"/>
+        <relatesTo rdf:resource="#Acceleration"/>
+        <hasApplication rdf:resource="#SportsPerformance"/>
+        <isUsedIn rdf:resource="#FEqualsMA"/>
+    </PhysicalQuantity>
+
+    <PhysicalQuantity rdf:about="#Acceleration">
+        <hasDefinition>Acceleration is the rate of change of velocity with respect to time</hasDefinition>
+        <hasUnit rdf:resource="#MeterPerSecondSquared"/>
+        <isPartOf rdf:resource="#Kinematics"/>
+        <isPartOf rdf:resource="#NewtonsLaws"/>
+        <relatesTo rdf:resource="#Force"/>
+        <relatesTo rdf:resource="#Mass"/>
+        <relatesTo rdf:resource="#Velocity"/>
+        <hasApplication rdf:resource="#CarSafety"/>
+        <isUsedIn rdf:resource="#FEqualsMA"/>
+    </PhysicalQuantity>
+
+    <PhysicalQuantity rdf:about="#Velocity">
+        <hasDefinition>Velocity is the rate of change of position with respect to time, including direction</hasDefinition>
+        <hasUnit rdf:resource="#MeterPerSecond"/>
+        <isPartOf rdf:resource="#Kinematics"/>
+        <relatesTo rdf:resource="#Acceleration"/>
+        <relatesTo rdf:resource="#Position"/>
+        <isUsedIn rdf:resource="#InertiaFormula"/>
+    </PhysicalQuantity>
+
+    <PhysicalQuantity rdf:about="#Position">
+        <hasDefinition>Position is the location of an object relative to a reference point</hasDefinition>
+        <hasUnit rdf:resource="#Meter"/>
+        <isPartOf rdf:resource="#Kinematics"/>
+        <relatesTo rdf:resource="#Velocity"/>
+    </PhysicalQuantity>
+
+    <PhysicalQuantity rdf:about="#Time">
+        <hasDefinition>Time is the duration between events</hasDefinition>
+        <hasUnit rdf:resource="#Second"/>
+        <isPartOf rdf:resource="#Kinematics"/>
+        <relatesTo rdf:resource="#Velocity"/>
+        <relatesTo rdf:resource="#Acceleration"/>
+    </PhysicalQuantity>
+
+    <!-- Units -->
+    <Unit rdf:about="#Newton">
+        <hasDefinition>The SI unit of force, equal to 1 kg⋅m/s²</hasDefinition>
+    </Unit>
+
+    <Unit rdf:about="#Kilogram">
+        <hasDefinition>The SI unit of mass</hasDefinition>
+    </Unit>
+
+    <Unit rdf:about="#MeterPerSecondSquared">
+        <hasDefinition>The SI unit of acceleration</hasDefinition>
+    </Unit>
+
+    <Unit rdf:about="#MeterPerSecond">
+        <hasDefinition>The SI unit of velocity</hasDefinition>
+    </Unit>
+
+    <Unit rdf:about="#Meter">
+        <hasDefinition>The SI unit of length/distance</hasDefinition>
+    </Unit>
+
+    <Unit rdf:about="#Second">
+        <hasDefinition>The SI unit of time</hasDefinition>
+    </Unit>
+
+    <!-- Laws -->
+    <Law rdf:about="#NewtonsFirstLaw">
+        <hasDefinition>Newton's First Law (Law of Inertia) states that an object at rest will stay at rest, and an object in motion will stay in motion with the same speed and direction unless acted upon by an unbalanced force</hasDefinition>
+        <hasPrerequisite rdf:resource="#Force"/>
+        <hasPrerequisite rdf:resource="#Velocity"/>
+        <hasFormula rdf:resource="#InertiaFormula"/>
+        <isPartOf rdf:resource="#NewtonsLaws"/>
+        <relatesTo rdf:resource="#NewtonsSecondLaw"/>
+        <relatesTo rdf:resource="#NewtonsThirdLaw"/>
+        <hasApplication rdf:resource="#CarSafety"/>
+        <hasExample rdf:resource="#InertiaExample"/>
+    </Law>
+
+    <Law rdf:about="#NewtonsSecondLaw">
+        <hasDefinition>Newton's Second Law states that the acceleration of an object is directly proportional to the net force acting on it and inversely proportional to its mass</hasDefinition>
+        <hasPrerequisite rdf:resource="#Force"/>
+        <hasPrerequisite rdf:resource="#Mass"/>
+        <hasPrerequisite rdf:resource="#Acceleration"/>
+        <hasFormula rdf:resource="#FEqualsMA"/>
+        <isPartOf rdf:resource="#NewtonsLaws"/>
+        <relatesTo rdf:resource="#NewtonsFirstLaw"/>
+        <relatesTo rdf:resource="#NewtonsThirdLaw"/>
+        <hasApplication rdf:resource="#SportsPerformance"/>
+        <hasExample rdf:resource="#SecondLawExample"/>
+    </Law>
+
+    <Law rdf:about="#NewtonsThirdLaw">
+        <hasDefinition>Newton's Third Law states that for every action, there is an equal and opposite reaction</hasDefinition>
+        <hasPrerequisite rdf:resource="#Force"/>
+        <hasPrerequisite rdf:resource="#NewtonsFirstLaw"/>
+        <hasPrerequisite rdf:resource="#NewtonsSecondLaw"/>
+        <hasFormula rdf:resource="#ActionReactionFormula"/>
+        <isPartOf rdf:resource="#NewtonsLaws"/>
+        <relatesTo rdf:resource="#NewtonsFirstLaw"/>
+        <relatesTo rdf:resource="#NewtonsSecondLaw"/>
+        <hasApplication rdf:resource="#RocketPropulsion"/>
+        <hasExample rdf:resource="#ThirdLawExample"/>
+    </Law>
+
+    <!-- Formulas -->
+    <Formula rdf:about="#FEqualsMA">
+        <hasDefinition>F = m * a, where F is force, m is mass, and a is acceleration</hasDefinition>
+    </Formula>
+
+    <Formula rdf:about="#InertiaFormula">
+        <hasDefinition>If ΣF = 0, then v = constant, where ΣF is the sum of forces and v is velocity</hasDefinition>
+    </Formula>
+
+    <Formula rdf:about="#ActionReactionFormula">
+        <hasDefinition>F₁₂ = -F₂₁, where F₁₂ is the force of object 1 on object 2, and F₂₁ is the force of object 2 on object 1</hasDefinition>
+    </Formula>
+
+    <!-- Examples -->
+    <Example rdf:about="#InertiaExample">
+        <hasExplanation>A book lying on a table stays at rest until someone pushes it. This demonstrates Newton's First Law - objects at rest stay at rest unless acted upon by a force.</hasExplanation>
+    </Example>
+
+    <Example rdf:about="#SecondLawExample">
+        <hasExplanation>When you push a shopping cart, the harder you push (greater force), the faster it accelerates. Also, a full cart (greater mass) accelerates less than an empty cart when pushed with the same force.</hasExplanation>
+    </Example>
+
+    <Example rdf:about="#ThirdLawExample">
+        <hasExplanation>When you walk, your foot pushes backward on the ground (action), and the ground pushes forward on your foot (reaction), propelling you forward.</hasExplanation>
+    </Example>
+</rdf:RDF> 
