@@ -1,0 +1,29 @@
+{
+  "student_id": "test_student_3d176e1a",
+  "exposed_concepts": [
+    "Mass",
+    "Force"
+  ],
+  "understood_concepts": [
+    "Force"
+  ],
+  "misconceptions": {
+    "Mass": "Student confuses mass and weight"
+  },
+  "quiz_results": [],
+  "interaction_history": [
+    {
+      "timestamp": "2025-03-10T22:18:33.730479",
+      "question": "What is force?",
+      "response": "This is a mock response from Claude.",
+      "concepts": [
+        "Force"
+      ]
+    }
+  ],
+  "knowledge_level": {
+    "Force": 0.8,
+    "Mass": 0.3
+  },
+  "last_interaction": "2025-03-10T22:18:33.730479"
+}
