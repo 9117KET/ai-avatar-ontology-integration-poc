@@ -6,7 +6,7 @@ from anthropic import AsyncAnthropic
 from owlready2 import get_ontology, World
 
 # Import the StudentModel
-from student_model import StudentModel
+from llm_integration.student_model import StudentModel
 
 # Set up logging
 logging.basicConfig(level=logging.DEBUG)

@@ -1,0 +1,95 @@
+/* Chat Container Styles */
+.chat-container {
+  height: 400px;
+  overflow-y: auto;
+  border: 1px solid #e0e0e0;
+  border-radius: 5px;
+  padding: 15px;
+  margin-bottom: 15px;
+  background-color: #f8f9fa;
+}
+
+/* Message Styles */
+.tutor-message,
+.user-message {
+  display: flex;
+  margin-bottom: 15px;
+  max-width: 80%;
+}
+
+.tutor-message {
+  align-self: flex-start;
+}
+
+.user-message {
+  align-self: flex-end;
+  margin-left: auto;
+  flex-direction: row-reverse;
+}
+
+.avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-right: 10px;
+}
+
+.user-message .avatar {
+  margin-right: 0;
+  margin-left: 10px;
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.message {
+  background-color: #fff;
+  border-radius: 10px;
+  padding: 10px 15px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.tutor-message .message {
+  background-color: #e3f2fd;
+  border-top-left-radius: 0;
+}
+
+.user-message .message {
+  background-color: #f1f8e9;
+  border-top-right-radius: 0;
+}
+
+/* Loading Overlay */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* Knowledge Level Progress Bars */
+.knowledge-item {
+  margin-bottom: 10px;
+}
+
+.progress {
+  height: 10px;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .tutor-message,
+  .user-message {
+    max-width: 90%;
+  }
+}
