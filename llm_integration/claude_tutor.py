@@ -233,23 +233,71 @@ Please provide a helpful response based on the knowledge base and your understan
         context = []
         concepts_covered = []
         
-        # Expanded keyword list with variations
-        keywords = [
-            "newton", "force", "mass", "acceleration", "velocity", "motion",
-            "law", "laws", "inertia", "action", "reaction"
-        ]
-        
         # Convert question to lowercase for case-insensitive matching
         question_lower = question.lower()
         
-        # First, check for Newton's Laws specifically
+        # 1. Check for general topics first (like "Newton's Laws" as a whole topic)
+        topic_mappings = {
+            "newton's laws": "NewtonsLaws",
+            "newtons laws": "NewtonsLaws",
+            "newton laws": "NewtonsLaws",
+            "kinematics": "Kinematics",
+            "motion": "Kinematics",
+        }
+        
+        # Check if the question is about a general topic
+        for topic_phrase, topic_name in topic_mappings.items():
+            if topic_phrase in question_lower:
+                topic_obj = self.onto.search_one(iri=f"*{topic_name}")
+                if topic_obj:
+                    concepts_covered.append(topic_name)
+                    context.append(f"Topic: {topic_name}")
+                    
+                    # Add topic definition if available
+                    if hasattr(topic_obj, 'hasDefinition'):
+                        context.append(f"Definition: {topic_obj.hasDefinition[0]}")
+                    
+                    # Find all concepts that are part of this topic
+                    related_concepts = []
+                    for concept in self.onto.search(isPartOf=topic_obj):
+                        related_concepts.append(concept)
+                        concepts_covered.append(concept.name)
+                    
+                    # If this is Newton's Laws, also add the three laws
+                    if topic_name == "NewtonsLaws":
+                        laws = ["NewtonsFirstLaw", "NewtonsSecondLaw", "NewtonsThirdLaw"]
+                        context.append("This topic includes the following laws:")
+                        
+                        for law_name in laws:
+                            law_obj = self.onto.search_one(iri=f"*{law_name}")
+                            if law_obj and hasattr(law_obj, 'hasDefinition'):
+                                context.append(f"- {law_name}: {law_obj.hasDefinition[0]}")
+                    
+                    # Return early if we've found a matching topic
+                    return "\n".join(context), concepts_covered
+        
+        # 2. Check for specific Newton's Laws
         law_mappings = {
             "newton's first law": "NewtonsFirstLaw",
             "newtons first law": "NewtonsFirstLaw",
+            "newton first law": "NewtonsFirstLaw",
+            "first law": "NewtonsFirstLaw",
+            "law of inertia": "NewtonsFirstLaw",
+            "inertia": "NewtonsFirstLaw",
+            
             "newton's second law": "NewtonsSecondLaw",
             "newtons second law": "NewtonsSecondLaw",
+            "newton second law": "NewtonsSecondLaw",
+            "second law": "NewtonsSecondLaw",
+            "f = ma": "NewtonsSecondLaw",
+            "f=ma": "NewtonsSecondLaw",
+            
             "newton's third law": "NewtonsThirdLaw",
-            "newtons third law": "NewtonsThirdLaw"
+            "newtons third law": "NewtonsThirdLaw",
+            "newton third law": "NewtonsThirdLaw",
+            "third law": "NewtonsThirdLaw",
+            "action reaction": "NewtonsThirdLaw",
+            "equal and opposite": "NewtonsThirdLaw"
         }
         
         for question_law, ontology_law in law_mappings.items():
@@ -264,42 +312,139 @@ Please provide a helpful response based on the knowledge base and your understan
                         context.append("Prerequisites:")
                         for prereq in law_obj.hasPrerequisite:
                             concepts_covered.append(prereq.name)
-                            context.append(f"- {prereq.name}")
+                            context.append(f"- {prereq.name}: {prereq.hasDefinition[0] if hasattr(prereq, 'hasDefinition') else ''}")
+                    if hasattr(law_obj, 'hasFormula'):
+                        formula = law_obj.hasFormula[0]
+                        if hasattr(formula, 'hasDefinition'):
+                            context.append(f"Formula: {formula.hasDefinition[0]}")
                     if hasattr(law_obj, 'hasExample'):
                         context.append("Examples:")
                         for example in law_obj.hasExample:
-                            context.append(f"- {example.hasExplanation[0]}")
+                            if hasattr(example, 'hasExplanation'):
+                                context.append(f"- {example.hasExplanation[0]}")
                     if hasattr(law_obj, 'hasApplication'):
                         context.append("Applications:")
                         for app in law_obj.hasApplication:
-                            context.append(f"- {app.hasDescription[0]}")
+                            if hasattr(app, 'hasDescription'):
+                                context.append(f"- {app.hasDescription[0]}")
                     return "\n".join(context), concepts_covered
         
-        # Then check for other concepts
-        for keyword in keywords:
-            if keyword in question_lower:
-                # Search for related concepts
-                for concept in self.onto.search(type=self.onto.Concept):
-                    if keyword in concept.name.lower():
-                        concepts_covered.append(concept.name)
-                        context.append(f"Concept: {concept.name}")
-                        if hasattr(concept, 'hasDefinition'):
-                            context.append(f"Definition: {concept.hasDefinition[0]}")
-                        if hasattr(concept, 'hasPrerequisite'):
-                            context.append("Prerequisites:")
-                            for prereq in concept.hasPrerequisite:
-                                concepts_covered.append(prereq.name)
-                                context.append(f"- {prereq.name}")
-                        if hasattr(concept, 'hasExample'):
-                            context.append("Examples:")
-                            for example in concept.hasExample:
-                                context.append(f"- {example.hasExplanation[0]}")
-                        if hasattr(concept, 'hasApplication'):
-                            context.append("Applications:")
-                            for app in concept.hasApplication:
-                                context.append(f"- {app.hasDescription[0]}")
+        # 3. Check for physical quantities and other concepts
+        quantity_mappings = {
+            "force": "Force",
+            "mass": "Mass",
+            "acceleration": "Acceleration",
+            "velocity": "Velocity",
+            "speed": "Velocity",
+            "position": "Position",
+            "time": "Time",
+            "newton": "Newton",
+            "kilogram": "Kilogram",
+            "meter": "Meter",
+            "second": "Second"
+        }
         
-        return "\n".join(context) if context else "No specific context found for this question.", list(set(concepts_covered))
+        # First look for exact matches in the mappings
+        for keyword, concept_name in quantity_mappings.items():
+            # Check if the keyword appears as a complete word
+            # This uses word boundaries to avoid matching 'mass' in 'massive'
+            import re
+            if re.search(r'\b' + keyword + r'\b', question_lower):
+                concept_obj = self.onto.search_one(iri=f"*{concept_name}")
+                if concept_obj:
+                    concepts_covered.append(concept_name)
+                    self._add_concept_to_context(concept_obj, context, concepts_covered)
+        
+        # 4. If still no context, try looking for any concept
+        if not context:
+            # Get all concepts from the ontology
+            all_concepts = list(self.onto.search(type=self.onto.PhysicalQuantity)) + \
+                          list(self.onto.search(type=self.onto.Law)) + \
+                          list(self.onto.search(type=self.onto.Unit))
+            
+            # Tokenize the question
+            from nltk.tokenize import word_tokenize
+            try:
+                tokens = word_tokenize(question_lower)
+            except:
+                # If NLTK is not available, fall back to simple splitting
+                tokens = question_lower.split()
+            
+            # Find any concept whose name (or part of it) appears in the tokens
+            for concept in all_concepts:
+                concept_name = concept.name.lower()
+                # Check if any token is a substring of the concept name or vice versa
+                for token in tokens:
+                    if token in concept_name or concept_name in token:
+                        if token not in ["what", "is", "the", "a", "an", "of", "in", "on", "for", "about"]:
+                            concepts_covered.append(concept.name)
+                            self._add_concept_to_context(concept, context, concepts_covered)
+                            break
+        
+        # Return the results with appropriate message
+        if context:
+            return "\n".join(context), list(set(concepts_covered))
+        else:
+            # If we still couldn't find context, provide a general guide based on the question
+            if any(keyword in question_lower for keyword in ["newton", "law", "motion", "force"]):
+                return "The question appears to be about Newton's Laws or classical mechanics, but no specific concept was identified.", []
+            else:
+                return "No specific context found for this question.", []
+    
+    def _add_concept_to_context(self, concept, context: List[str], concepts_covered: List[str]):
+        """Helper method to add concept information to the context."""
+        context.append(f"Concept: {concept.name}")
+        if hasattr(concept, 'hasDefinition'):
+            context.append(f"Definition: {concept.hasDefinition[0]}")
+        
+        # Add related concepts
+        if hasattr(concept, 'relatesTo'):
+            context.append("Related concepts:")
+            for related in concept.relatesTo:
+                concepts_covered.append(related.name)
+                if hasattr(related, 'hasDefinition'):
+                    context.append(f"- {related.name}: {related.hasDefinition[0]}")
+                else:
+                    context.append(f"- {related.name}")
+        
+        # Add unit if it's a physical quantity
+        if hasattr(concept, 'hasUnit'):
+            unit = concept.hasUnit[0]
+            concepts_covered.append(unit.name)
+            if hasattr(unit, 'hasDefinition'):
+                context.append(f"Unit: {unit.name} - {unit.hasDefinition[0]}")
+            else:
+                context.append(f"Unit: {unit.name}")
+        
+        # Add prerequisites
+        if hasattr(concept, 'hasPrerequisite'):
+            context.append("Prerequisites:")
+            for prereq in concept.hasPrerequisite:
+                concepts_covered.append(prereq.name)
+                if hasattr(prereq, 'hasDefinition'):
+                    context.append(f"- {prereq.name}: {prereq.hasDefinition[0]}")
+                else:
+                    context.append(f"- {prereq.name}")
+        
+        # Add formula for laws
+        if hasattr(concept, 'hasFormula'):
+            formula = concept.hasFormula[0]
+            if hasattr(formula, 'hasDefinition'):
+                context.append(f"Formula: {formula.hasDefinition[0]}")
+        
+        # Add examples if available
+        if hasattr(concept, 'hasExample'):
+            context.append("Examples:")
+            for example in concept.hasExample:
+                if hasattr(example, 'hasExplanation'):
+                    context.append(f"- {example.hasExplanation[0]}")
+        
+        # Add applications if available
+        if hasattr(concept, 'hasApplication'):
+            context.append("Applications:")
+            for app in concept.hasApplication:
+                if hasattr(app, 'hasDescription'):
+                    context.append(f"- {app.hasDescription[0]}")
     
     def _adapt_context_to_student(self, context: str, concepts: List[str]) -> str:
         """

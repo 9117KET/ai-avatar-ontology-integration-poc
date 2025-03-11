@@ -7,4 +7,5 @@ flask>=2.3.0
 flask-cors>=4.0.0
 nest_asyncio>=1.6.0
 quart>=0.20.0
-quart-cors>=0.7.0 
+quart-cors>=0.7.0
+nltk>=3.8.1 
