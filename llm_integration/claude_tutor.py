@@ -85,14 +85,19 @@ class ClaudeTutor:
         
         # Add topics
         for topic in self.onto.search(type=self.onto.Topic):
-            prompt += f"- {topic.name}: {topic.hasDefinition[0]}\n"
+            if hasattr(topic, 'hasDefinition') and len(topic.hasDefinition) > 0:
+                prompt += f"- {topic.name}: {topic.hasDefinition[0]}\n"
+            else:
+                prompt += f"- {topic.name}\n"
         
         prompt += "\nKey Laws:\n"
         # Add Newton's Laws
         for law in ["NewtonsFirstLaw", "NewtonsSecondLaw", "NewtonsThirdLaw"]:
             law_obj = self.onto.search_one(iri=f"*{law}")
-            if law_obj:
+            if law_obj and hasattr(law_obj, 'hasDefinition') and len(law_obj.hasDefinition) > 0:
                 prompt += f"- {law}: {law_obj.hasDefinition[0]}\n"
+            elif law_obj:
+                prompt += f"- {law}\n"
         
         # Add student model information if available
         if self.student_model and self.student_model.exposed_concepts:
@@ -254,7 +259,7 @@ Please provide a helpful response based on the knowledge base and your understan
                     context.append(f"Topic: {topic_name}")
                     
                     # Add topic definition if available
-                    if hasattr(topic_obj, 'hasDefinition'):
+                    if hasattr(topic_obj, 'hasDefinition') and len(topic_obj.hasDefinition) > 0:
                         context.append(f"Definition: {topic_obj.hasDefinition[0]}")
                     
                     # Find all concepts that are part of this topic
@@ -270,7 +275,7 @@ Please provide a helpful response based on the knowledge base and your understan
                         
                         for law_name in laws:
                             law_obj = self.onto.search_one(iri=f"*{law_name}")
-                            if law_obj and hasattr(law_obj, 'hasDefinition'):
+                            if law_obj and hasattr(law_obj, 'hasDefinition') and len(law_obj.hasDefinition) > 0:
                                 context.append(f"- {law_name}: {law_obj.hasDefinition[0]}")
                     
                     # Return early if we've found a matching topic
@@ -306,26 +311,29 @@ Please provide a helpful response based on the knowledge base and your understan
                 if law_obj:
                     concepts_covered.append(ontology_law)
                     context.append(f"Law: {ontology_law}")
-                    if hasattr(law_obj, 'hasDefinition'):
+                    if hasattr(law_obj, 'hasDefinition') and len(law_obj.hasDefinition) > 0:
                         context.append(f"Definition: {law_obj.hasDefinition[0]}")
                     if hasattr(law_obj, 'hasPrerequisite'):
                         context.append("Prerequisites:")
                         for prereq in law_obj.hasPrerequisite:
                             concepts_covered.append(prereq.name)
-                            context.append(f"- {prereq.name}: {prereq.hasDefinition[0] if hasattr(prereq, 'hasDefinition') else ''}")
-                    if hasattr(law_obj, 'hasFormula'):
+                            if hasattr(prereq, 'hasDefinition') and len(prereq.hasDefinition) > 0:
+                                context.append(f"- {prereq.name}: {prereq.hasDefinition[0]}")
+                            else:
+                                context.append(f"- {prereq.name}")
+                    if hasattr(law_obj, 'hasFormula') and len(law_obj.hasFormula) > 0:
                         formula = law_obj.hasFormula[0]
-                        if hasattr(formula, 'hasDefinition'):
+                        if hasattr(formula, 'hasDefinition') and len(formula.hasDefinition) > 0:
                             context.append(f"Formula: {formula.hasDefinition[0]}")
                     if hasattr(law_obj, 'hasExample'):
                         context.append("Examples:")
                         for example in law_obj.hasExample:
-                            if hasattr(example, 'hasExplanation'):
+                            if hasattr(example, 'hasExplanation') and len(example.hasExplanation) > 0:
                                 context.append(f"- {example.hasExplanation[0]}")
                     if hasattr(law_obj, 'hasApplication'):
                         context.append("Applications:")
                         for app in law_obj.hasApplication:
-                            if hasattr(app, 'hasDescription'):
+                            if hasattr(app, 'hasDescription') and len(app.hasDescription) > 0:
                                 context.append(f"- {app.hasDescription[0]}")
                     return "\n".join(context), concepts_covered
         
@@ -394,7 +402,7 @@ Please provide a helpful response based on the knowledge base and your understan
     def _add_concept_to_context(self, concept, context: List[str], concepts_covered: List[str]):
         """Helper method to add concept information to the context."""
         context.append(f"Concept: {concept.name}")
-        if hasattr(concept, 'hasDefinition'):
+        if hasattr(concept, 'hasDefinition') and len(concept.hasDefinition) > 0:
             context.append(f"Definition: {concept.hasDefinition[0]}")
         
         # Add related concepts
@@ -402,16 +410,16 @@ Please provide a helpful response based on the knowledge base and your understan
             context.append("Related concepts:")
             for related in concept.relatesTo:
                 concepts_covered.append(related.name)
-                if hasattr(related, 'hasDefinition'):
+                if hasattr(related, 'hasDefinition') and len(related.hasDefinition) > 0:
                     context.append(f"- {related.name}: {related.hasDefinition[0]}")
                 else:
                     context.append(f"- {related.name}")
         
         # Add unit if it's a physical quantity
-        if hasattr(concept, 'hasUnit'):
+        if hasattr(concept, 'hasUnit') and len(concept.hasUnit) > 0:
             unit = concept.hasUnit[0]
             concepts_covered.append(unit.name)
-            if hasattr(unit, 'hasDefinition'):
+            if hasattr(unit, 'hasDefinition') and len(unit.hasDefinition) > 0:
                 context.append(f"Unit: {unit.name} - {unit.hasDefinition[0]}")
             else:
                 context.append(f"Unit: {unit.name}")
@@ -421,29 +429,29 @@ Please provide a helpful response based on the knowledge base and your understan
             context.append("Prerequisites:")
             for prereq in concept.hasPrerequisite:
                 concepts_covered.append(prereq.name)
-                if hasattr(prereq, 'hasDefinition'):
+                if hasattr(prereq, 'hasDefinition') and len(prereq.hasDefinition) > 0:
                     context.append(f"- {prereq.name}: {prereq.hasDefinition[0]}")
                 else:
                     context.append(f"- {prereq.name}")
         
         # Add formula for laws
-        if hasattr(concept, 'hasFormula'):
+        if hasattr(concept, 'hasFormula') and len(concept.hasFormula) > 0:
             formula = concept.hasFormula[0]
-            if hasattr(formula, 'hasDefinition'):
+            if hasattr(formula, 'hasDefinition') and len(formula.hasDefinition) > 0:
                 context.append(f"Formula: {formula.hasDefinition[0]}")
         
         # Add examples if available
         if hasattr(concept, 'hasExample'):
             context.append("Examples:")
             for example in concept.hasExample:
-                if hasattr(example, 'hasExplanation'):
+                if hasattr(example, 'hasExplanation') and len(example.hasExplanation) > 0:
                     context.append(f"- {example.hasExplanation[0]}")
         
         # Add applications if available
         if hasattr(concept, 'hasApplication'):
             context.append("Applications:")
             for app in concept.hasApplication:
-                if hasattr(app, 'hasDescription'):
+                if hasattr(app, 'hasDescription') and len(app.hasDescription) > 0:
                     context.append(f"- {app.hasDescription[0]}")
     
     def _adapt_context_to_student(self, context: str, concepts: List[str]) -> str:
