@@ -5,9 +5,15 @@ import json
 # Add the project root to the path so we can import our modules
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-# Initialize NLTK data
+# Initialize NLTK data - Use /tmp directory which is writable in Vercel
 import nltk
-nltk_data_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'nltk_data')
+# Check if running on Vercel (read-only filesystem)
+is_vercel = os.environ.get('VERCEL') == '1'
+if is_vercel:
+    nltk_data_dir = '/tmp/nltk_data'
+else:
+    nltk_data_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'nltk_data')
+
 os.makedirs(nltk_data_dir, exist_ok=True)
 nltk.data.path.append(nltk_data_dir)
 try:
@@ -56,7 +62,17 @@ def get_tutor(session_id):
     """Get or create a tutor instance for a session"""
     if session_id not in tutor_instances:
         try:
-            tutor_instances[session_id] = ClaudeTutor(student_id=session_id)
+            # For Vercel, tell the tutor to use the /tmp directory for student data
+            if os.environ.get('VERCEL') == '1':
+                # Create students directory in /tmp if it doesn't exist
+                os.makedirs('/tmp/data/students', exist_ok=True)
+                # Pass the temporary directory to the tutor
+                tutor_instances[session_id] = ClaudeTutor(
+                    student_id=session_id, 
+                    data_dir='/tmp/data'
+                )
+            else:
+                tutor_instances[session_id] = ClaudeTutor(student_id=session_id)
         except Exception as e:
             print(f"Error creating tutor: {e}")
             # Return a placeholder tutor that explains the error
@@ -136,9 +152,24 @@ def get_learning_path(session_id, target):
 @app.route('/api/debug', methods=['GET'])
 def debug_info():
     """API endpoint to check configuration and environment"""
+    try:
+        # Test writable directories
+        tmp_test_file = '/tmp/test_write.txt'
+        with open(tmp_test_file, 'w') as f:
+            f.write('Test write access')
+        tmp_writable = True
+        os.remove(tmp_test_file)
+    except Exception as e:
+        tmp_writable = str(e)
+    
     env_vars = {
         "ANTHROPIC_API_KEY": "Present" if os.getenv("ANTHROPIC_API_KEY") else "Missing",
         "NLTK_DATA": nltk_data_dir,
+        "NLTK_DATA_EXISTS": os.path.exists(nltk_data_dir),
+        "TMP_WRITABLE": tmp_writable,
+        "VERCEL_ENV": os.environ.get('VERCEL'),
+        "VERCEL_REGION": os.environ.get('VERCEL_REGION'),
+        "PWD": os.environ.get('PWD'),
         "PROJECT_ROOT": os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
         "PYTHON_VERSION": sys.version,
         "MODULES_LOADED": list(sys.modules.keys())
