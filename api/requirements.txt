@@ -3,4 +3,5 @@ owlready2>=0.45
 python-dotenv>=1.0.0
 flask>=2.3.0
 flask-cors>=4.0.0
-nltk>=3.8.1 
+nltk>=3.8.1
+serverless-wsgi>=3.0.1 

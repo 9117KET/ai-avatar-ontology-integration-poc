@@ -21,7 +21,7 @@ try:
 except LookupError:
     nltk.download('punkt', download_dir=nltk_data_dir)
 
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify, send_from_directory, Response
 from flask_cors import CORS
 import asyncio
 
@@ -179,9 +179,10 @@ def debug_info():
 # This is necessary for Vercel serverless functions
 app.debug = False
 
-# Handler for Vercel serverless function
-def handler(event, context):
-    return app(event, context)
+# For Vercel serverless functions
+def handler(request):
+    """Vercel serverless function handler."""
+    return app(request.environ, lambda status, headers, exc_info=None: Response("", status=status, headers=headers))
 
 # For local development
 if __name__ == '__main__':
