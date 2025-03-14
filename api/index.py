@@ -19,12 +19,31 @@ from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 import asyncio
 
+# Check for ANTHROPIC_API_KEY
+if not os.getenv("ANTHROPIC_API_KEY"):
+    print("WARNING: ANTHROPIC_API_KEY environment variable is not set. Tutor functionality will be limited.")
+
 try:
     from llm_integration.claude_tutor import ClaudeTutor
 except ImportError:
     # For Vercel deployment
     sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    from llm_integration.claude_tutor import ClaudeTutor
+    try:
+        from llm_integration.claude_tutor import ClaudeTutor
+    except Exception as e:
+        print(f"Error importing ClaudeTutor: {e}")
+        # Create a placeholder if import fails
+        class ClaudeTutor:
+            def __init__(self, student_id=None):
+                self.student_model = type('obj', (object,), {
+                    'exposed_concepts': set(),
+                    'understood_concepts': set(),
+                    'knowledge_level': 0,
+                    'misconceptions': []
+                })
+            
+            async def tutor(self, question):
+                return "I'm sorry, but I'm currently unavailable due to a configuration issue. Please make sure the ANTHROPIC_API_KEY environment variable is set."
 
 # Initialize Flask app
 app = Flask(__name__, static_folder='../static')
@@ -36,7 +55,12 @@ tutor_instances = {}
 def get_tutor(session_id):
     """Get or create a tutor instance for a session"""
     if session_id not in tutor_instances:
-        tutor_instances[session_id] = ClaudeTutor(student_id=session_id)
+        try:
+            tutor_instances[session_id] = ClaudeTutor(student_id=session_id)
+        except Exception as e:
+            print(f"Error creating tutor: {e}")
+            # Return a placeholder tutor that explains the error
+            return ClaudeTutor(student_id=session_id)
     return tutor_instances[session_id]
 
 @app.route('/')
@@ -108,6 +132,18 @@ def get_learning_path(session_id, target):
         return jsonify({'learning_path': learning_path})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+@app.route('/api/debug', methods=['GET'])
+def debug_info():
+    """API endpoint to check configuration and environment"""
+    env_vars = {
+        "ANTHROPIC_API_KEY": "Present" if os.getenv("ANTHROPIC_API_KEY") else "Missing",
+        "NLTK_DATA": nltk_data_dir,
+        "PROJECT_ROOT": os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+        "PYTHON_VERSION": sys.version,
+        "MODULES_LOADED": list(sys.modules.keys())
+    }
+    return jsonify(env_vars)
 
 # This is necessary for Vercel serverless functions
 app.debug = False
