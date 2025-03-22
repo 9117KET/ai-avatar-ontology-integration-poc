@@ -12,16 +12,21 @@ class StudentModel:
     """
     Tracks a student's knowledge state, interaction history, and learning progress.
     
-    The StudentModel maintains:
+    The StudentModel is a core component that maintains:
     - Concepts the student has been exposed to
     - Concepts the student has demonstrated understanding of
     - Quiz/assessment results
     - Interaction history
+    
+    This model enables personalized tutoring by adapting content based on
+    the student's current knowledge state.
     """
     
     def __init__(self, student_id: str, data_path: Optional[str] = None):
         """
         Initialize a new student model or load an existing one.
+        
+        Persists student data between sessions using JSON storage.
         
         Args:
             student_id: Unique identifier for the student
@@ -50,7 +55,12 @@ class StudentModel:
         self._load_data()
         
     def _load_data(self) -> None:
-        """Load student data from disk if it exists."""
+        """
+        Load student data from disk if it exists.
+        
+        Restores the student's previous state from JSON storage to enable
+        continuous learning across sessions.
+        """
         file_path = os.path.join(self.data_path, f"{self.student_id}.json")
         if os.path.exists(file_path):
             try:
@@ -73,7 +83,12 @@ class StudentModel:
                 logger.error(f"Error loading student data: {e}")
     
     def save(self) -> None:
-        """Save student data to disk."""
+        """
+        Save student data to disk.
+        
+        Persists the current state of the student model to enable
+        continuous learning across sessions.
+        """
         file_path = os.path.join(self.data_path, f"{self.student_id}.json")
         try:
             data = {
@@ -97,6 +112,9 @@ class StudentModel:
     def add_interaction(self, question: str, response: str, concepts: List[str]) -> None:
         """
         Record a new interaction with the student.
+        
+        Updates the student model with information from the current tutoring
+        interaction, including concepts covered.
         
         Args:
             question: The student's question
@@ -124,6 +142,9 @@ class StudentModel:
     def update_quiz_result(self, concept: str, correct: bool, confidence: float) -> None:
         """
         Update the student model with a quiz result.
+        
+        Refines the knowledge model based on assessment results, adjusting
+        the estimated knowledge level for concepts and detecting possible misconceptions.
         
         Args:
             concept: The concept being tested
@@ -170,6 +191,9 @@ class StudentModel:
         """
         Record a student misconception about a concept.
         
+        Enables the tutoring system to address and correct specific
+        misunderstandings in future interactions.
+        
         Args:
             concept: The concept name
             misconception: Description of the misconception
@@ -178,7 +202,12 @@ class StudentModel:
         self.save()
     
     def get_knowledge_gaps(self) -> List[str]:
-        """Return concepts that should be reinforced based on low knowledge levels."""
+        """
+        Return concepts that should be reinforced based on low knowledge levels.
+        
+        Helps the tutoring system identify areas where additional practice or
+        explanation is needed.
+        """
         return [
             concept for concept, level in self.knowledge_level.items()
             if level < 0.5 and concept in self.exposed_concepts
@@ -187,6 +216,9 @@ class StudentModel:
     def get_ready_concepts(self, all_prereqs: Dict[str, List[str]]) -> List[str]:
         """
         Identify concepts the student is ready to learn next.
+        
+        Uses the prerequisite graph to determine which new concepts can be
+        introduced based on the student's current understanding.
         
         Args:
             all_prereqs: Dictionary mapping concept names to their prerequisites
@@ -210,6 +242,9 @@ class StudentModel:
     def get_recommended_content(self, all_concepts: List[str]) -> Dict[str, str]:
         """
         Generate content recommendations based on the student's knowledge state.
+        
+        Categorizes concepts into different recommendation types to create
+        a balanced learning experience (review, reinforce, new, challenge).
         
         Args:
             all_concepts: List of all available concepts
@@ -249,12 +284,15 @@ class StudentModel:
         """
         Generate a personalized learning path to reach a target concept.
         
+        Creates an optimized sequence of concepts to learn based on prerequisites
+        and the student's current knowledge state.
+        
         Args:
             target_concept: The concept the student wants to learn
             concept_graph: Dictionary mapping concepts to their prerequisites
             
         Returns:
-            List of concepts in order they should be learned
+            Ordered list of concepts to learn
         """
         # Simple implementation - can be enhanced with graph algorithms
         learning_path = []

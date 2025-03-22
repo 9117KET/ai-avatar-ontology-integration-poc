@@ -17,7 +17,12 @@ app = cors(app)  # Enable CORS for all routes
 tutor_instances = {}
 
 def get_tutor(session_id):
-    """Get or create a tutor instance for a session"""
+    """
+    Get or create a tutor instance for a session.
+    
+    This function maintains persistent tutor instances across requests,
+    which preserves student models and conversation context.
+    """
     if session_id not in tutor_instances:
         logger.info(f"Creating new tutor instance for session {session_id}")
         tutor_instances[session_id] = ClaudeTutor(student_id=session_id)
@@ -25,12 +30,23 @@ def get_tutor(session_id):
 
 @app.route('/')
 async def index():
-    """Serve the main HTML page"""
+    """
+    Serve the main HTML page.
+    
+    This is the entry point for the web application, which loads the frontend
+    interface from the static directory.
+    """
     return await send_from_directory('static', 'index.html')
 
 @app.route('/api/ask', methods=['POST'])
 async def ask_tutor():
-    """API endpoint to ask the tutor a question"""
+    """
+    API endpoint to ask the tutor a question.
+    
+    Receives questions from the frontend, processes them through the appropriate
+    tutor instance based on session_id, and returns both the response and 
+    updated student model information.
+    """
     data = await request.get_json()
     if not data or 'question' not in data:
         return jsonify({'error': 'Question is required'}), 400
@@ -45,7 +61,7 @@ async def ask_tutor():
         # Get the tutor's response
         response = await tutor.tutor(question)
         
-        # Return the response
+        # Return the response with student model data for the frontend
         return jsonify({
             'response': response,
             'student_model': {
@@ -61,7 +77,12 @@ async def ask_tutor():
 
 @app.route('/api/student_model/<session_id>', methods=['GET'])
 async def get_student_model(session_id):
-    """API endpoint to get the current student model"""
+    """
+    API endpoint to get the current student model.
+    
+    Provides the frontend with access to the complete student model data
+    for visualization and adaptive UI features.
+    """
     if session_id not in tutor_instances:
         return jsonify({'error': 'Session not found'}), 404
     
@@ -75,7 +96,12 @@ async def get_student_model(session_id):
 
 @app.route('/api/learning_path/<session_id>/<target>', methods=['GET'])
 async def get_learning_path(session_id, target):
-    """API endpoint to get a learning path to a target concept"""
+    """
+    API endpoint to get a learning path to a target concept.
+    
+    Calculates and returns a personalized learning path to reach a target concept
+    based on the student's current knowledge state and concept prerequisites.
+    """
     if session_id not in tutor_instances:
         return jsonify({'error': 'Session not found'}), 404
     
@@ -88,4 +114,5 @@ async def get_learning_path(session_id, target):
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
+    # Run the Quart server when script is executed directly
     app.run(debug=True, host='0.0.0.0', port=int(os.environ.get('PORT', 5000))) 

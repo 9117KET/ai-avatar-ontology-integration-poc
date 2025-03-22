@@ -1,3 +1,14 @@
+"""
+Main tutoring system implementation that integrates Claude AI with the student model
+and ontology knowledge base to provide personalized learning experiences.
+
+This module serves as the central component that:
+1. Manages conversations with the Anthropic Claude API
+2. Accesses the knowledge graph from the ontology
+3. Adapts responses based on the student model's state
+4. Tracks student progress and updates the model
+"""
+
 import os
 import logging
 from typing import List, Dict, Optional, Set
@@ -13,6 +24,21 @@ logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 class ClaudeTutor:
+    """
+    Intelligent tutoring system that combines Claude AI with a structured knowledge base.
+    
+    The ClaudeTutor is the core engine of the application, responsible for:
+    - Loading and navigating the domain ontology
+    - Managing the student model
+    - Constructing context-aware prompts for Claude
+    - Processing student questions
+    - Adapting responses based on student knowledge
+    - Updating the student model after interactions
+    
+    This class bridges the gap between the knowledge representation (ontology),
+    the AI model (Claude), and the adaptive learning features (student model).
+    """
+    
     def __init__(self, student_id: Optional[str] = None):
         """
         Initialize the Claude Tutor with API key, ontology, and student model.

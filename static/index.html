@@ -1,17 +1,31 @@
 <!DOCTYPE html>
+<!--
+  Main frontend interface for the Physics Tutor application.
+  
+  This HTML file provides the UI for:
+  - The chat interface between student and tutor
+  - Display of the student's learning progress
+  - Visual feedback on knowledge levels
+  
+  It communicates with the backend API to handle questions and
+  retrieve the student model data.
+-->
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Physics Tutor</title>
+    <!-- Bootstrap for responsive design and UI components -->
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
     />
+    <!-- Custom styles for the chat interface -->
     <link rel="stylesheet" href="static/css/style.css" />
   </head>
   <body>
     <div class="container">
+      <!-- Main chat interface card -->
       <div class="row mt-4">
         <div class="col-md-8 offset-md-2">
           <div class="card">
@@ -19,6 +33,7 @@
               <h3 class="mb-0">Physics Tutor</h3>
             </div>
             <div class="card-body">
+              <!-- Chat messages container - populated by JavaScript -->
               <div id="chatContainer" class="chat-container mb-3">
                 <div class="welcome-message">
                   <div class="tutor-message">
@@ -39,6 +54,7 @@
                 </div>
               </div>
 
+              <!-- Input group for student questions -->
               <div class="input-group">
                 <input
                   type="text"
@@ -53,7 +69,7 @@
         </div>
       </div>
 
-      <!-- Student Model Panel -->
+      <!-- Student Model Panel - Shows learning progress -->
       <div class="row mt-4">
         <div class="col-md-8 offset-md-2">
           <div class="card">
@@ -62,16 +78,18 @@
             </div>
             <div class="card-body">
               <div class="row">
+                <!-- Display of concepts the student has been exposed to -->
                 <div class="col-md-6">
                   <h6>Exposed Concepts</h6>
                   <ul id="exposedConcepts" class="list-group">
-                    <!-- Will be populated dynamically -->
+                    <!-- Will be populated dynamically by JavaScript -->
                   </ul>
                 </div>
+                <!-- Visual representation of knowledge levels -->
                 <div class="col-md-6">
                   <h6>Understanding Level</h6>
                   <div id="knowledgeLevels">
-                    <!-- Will be populated dynamically -->
+                    <!-- Will be populated dynamically by JavaScript -->
                   </div>
                 </div>
               </div>
@@ -81,14 +99,16 @@
       </div>
     </div>
 
-    <!-- Loading Spinner -->
+    <!-- Loading Spinner - Shown during API requests -->
     <div id="loadingOverlay" class="loading-overlay d-none">
       <div class="spinner-border text-light" role="status">
         <span class="visually-hidden">Loading...</span>
       </div>
     </div>
 
+    <!-- JavaScript dependencies -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Main application JavaScript -->
     <script src="static/js/app.js"></script>
   </body>
 </html>

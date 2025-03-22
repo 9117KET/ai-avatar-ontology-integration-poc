@@ -1,3 +1,14 @@
+/**
+ * Frontend application logic for the Physics Tutor.
+ *
+ * This module handles:
+ * - User interaction with the chat interface
+ * - Communication with the backend API
+ * - Rendering tutor responses
+ * - Visualizing the student model data
+ * - Updating the UI based on learning progress
+ */
+
 document.addEventListener("DOMContentLoaded", () => {
   // DOM Elements
   const chatContainer = document.getElementById("chatContainer");
@@ -8,6 +19,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const knowledgeLevels = document.getElementById("knowledgeLevels");
 
   // Session ID - generate a unique ID for this session
+  // This is used to maintain state on the backend across requests
   const sessionId = "session_" + Math.random().toString(36).substring(2, 15);
 
   // Event Listeners
@@ -18,7 +30,14 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Handle sending a message
+  /**
+   * Handles sending a user message to the tutor
+   * 1. Captures user input
+   * 2. Renders in chat window
+   * 3. Sends to API
+   * 4. Displays response
+   * 5. Updates student model visualization
+   */
   async function handleSendMessage() {
     const question = questionInput.value.trim();
     if (!question) return;
@@ -56,7 +75,13 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Fetch response from the tutor API
+  /**
+   * Sends the question to the backend API and returns the response
+   * Uses the session ID to maintain conversation context
+   *
+   * @param {string} question - The user's question
+   * @returns {Promise<Object>} - Response containing tutor answer and student model
+   */
   async function fetchTutorResponse(question) {
     const response = await fetch("/api/ask", {
       method: "POST",
@@ -77,7 +102,12 @@ document.addEventListener("DOMContentLoaded", () => {
     return await response.json();
   }
 
-  // Add a message to the chat container
+  /**
+   * Adds a message to the chat container with appropriate styling
+   *
+   * @param {string} role - Either "tutor" or "user"
+   * @param {string} text - The message text
+   */
   function addMessageToChat(role, text) {
     const messageDiv = document.createElement("div");
     messageDiv.className = role === "tutor" ? "tutor-message" : "user-message";
