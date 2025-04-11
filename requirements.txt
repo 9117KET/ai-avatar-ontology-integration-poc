@@ -6,8 +6,13 @@ python-dotenv>=1.0.0 # Environment variable management for API keys
 owlready2>=0.45      # Ontology management and reasoning
 
 # Web Framework  
-flask>=2.3.0         # Web server (Note: Quart is used in app.py, consider updating)
-flask-cors>=4.0.0    # Cross-origin resource sharing support
+quart>=0.19.0        # Async web server
+quart-cors>=0.7.0    # Cross-origin resource sharing support
+
+# Security
+python-jose[cryptography]>=3.3.0  # JWT token handling
+bcrypt>=4.0.1        # Password hashing
+python-multipart>=0.0.6  # Form data handling
 
 # Natural Language Processing
 nltk>=3.8.1          # Natural language toolkit for text processing 

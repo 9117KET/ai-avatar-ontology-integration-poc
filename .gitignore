@@ -1,7 +1,7 @@
 # Environment variables
 .env
-.env.*
 .env.local
+.env.*.local
 
 # Python
 __pycache__/
@@ -9,6 +9,7 @@ __pycache__/
 *$py.class
 *.so
 .Python
+env/
 build/
 develop-eggs/
 dist/
@@ -20,14 +21,12 @@ lib64/
 parts/
 sdist/
 var/
-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
 
 # Virtual Environment
 venv/
-env/
 ENV/
 
 # IDE
@@ -36,7 +35,24 @@ ENV/
 *.swp
 *.swo
 
+# Logs
+*.log
+logs/
+
+# Database
+*.db
+*.sqlite3
+
 # Testing
 .pytest_cache/
 .coverage
-htmlcov/ 
+htmlcov/
+
+# Security
+*.pem
+*.key
+*.cert
+
+# OS
+.DS_Store
+Thumbs.db 

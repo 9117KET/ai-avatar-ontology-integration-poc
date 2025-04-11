@@ -186,7 +186,9 @@
 
     <!-- Laws -->
     <Law rdf:about="#NewtonsFirstLaw">
-        <hasDefinition>Newton's First Law (Law of Inertia) states that an object at rest will stay at rest, and an object in motion will stay in motion with the same speed and direction unless acted upon by an unbalanced force</hasDefinition>
+        <hasDefinition>Newton's First Law (Law of Inertia) states that an object at rest will stay at rest, 
+        and an object in motion will stay in motion with the same speed and direction unless acted upon by 
+        an unbalanced force</hasDefinition>
         <hasPrerequisite rdf:resource="#Force"/>
         <hasPrerequisite rdf:resource="#Velocity"/>
         <hasFormula rdf:resource="#InertiaFormula"/>
@@ -198,7 +200,8 @@
     </Law>
 
     <Law rdf:about="#NewtonsSecondLaw">
-        <hasDefinition>Newton's Second Law states that the acceleration of an object is directly proportional to the net force acting on it and inversely proportional to its mass</hasDefinition>
+        <hasDefinition>Newton's Second Law states that the acceleration of an object is directly proportional 
+        to the net force acting on it and inversely proportional to its mass</hasDefinition>
         <hasPrerequisite rdf:resource="#Force"/>
         <hasPrerequisite rdf:resource="#Mass"/>
         <hasPrerequisite rdf:resource="#Acceleration"/>
@@ -233,19 +236,24 @@
     </Formula>
 
     <Formula rdf:about="#ActionReactionFormula">
-        <hasDefinition>F₁₂ = -F₂₁, where F₁₂ is the force of object 1 on object 2, and F₂₁ is the force of object 2 on object 1</hasDefinition>
+        <hasDefinition>F₁₂ = -F₂₁, where F₁₂ is the force of object 1 on object 2, and F₂₁ is the 
+        force of object 2 on object 1</hasDefinition>
     </Formula>
 
     <!-- Examples -->
     <Example rdf:about="#InertiaExample">
-        <hasExplanation>A book lying on a table stays at rest until someone pushes it. This demonstrates Newton's First Law - objects at rest stay at rest unless acted upon by a force.</hasExplanation>
+        <hasExplanation>A book lying on a table stays at rest until someone pushes it. This demonstrates 
+        Newton's First Law - objects at rest stay at rest unless acted upon by a force.</hasExplanation>
     </Example>
 
     <Example rdf:about="#SecondLawExample">
-        <hasExplanation>When you push a shopping cart, the harder you push (greater force), the faster it accelerates. Also, a full cart (greater mass) accelerates less than an empty cart when pushed with the same force.</hasExplanation>
+        <hasExplanation>When you push a shopping cart, the harder you push (greater force), 
+        the faster it accelerates. Also, a full cart (greater mass) accelerates less than an 
+        empty cart when pushed with the same force.</hasExplanation>
     </Example>
 
     <Example rdf:about="#ThirdLawExample">
-        <hasExplanation>When you walk, your foot pushes backward on the ground (action), and the ground pushes forward on your foot (reaction), propelling you forward.</hasExplanation>
+        <hasExplanation>When you walk, your foot pushes backward on the ground (action), and 
+        the ground pushes forward on your foot (reaction), propelling you forward.</hasExplanation>
     </Example>
 </rdf:RDF> 
