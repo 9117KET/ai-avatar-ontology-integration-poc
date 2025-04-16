@@ -1,0 +1,442 @@
+\documentclass[a4paper,11pt,oneside]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[a4paper,top=3cm,bottom=3cm,left=3cm,right=3cm]{geometry}
+\renewcommand{\familydefault}{\sfdefault}
+\usepackage{helvet}
+\usepackage[english]{babel}     %% typographie française
+\usepackage[style=numeric,language=english]{biblatex}
+\usepackage{parskip}		%% blank lines between paragraphs, no indent
+\usepackage[margin=1cm]{caption}%% give long captions a margin
+\usepackage{booktabs}           %% typesetting nice tables
+\usepackage[cache=false]{minted}%% typesetting code nicely
+\usepackage{csquotes}          %% smart quotes
+\usepackage[pdftex]{graphicx}	%% include graphics, preferrably pdf
+\usepackage[pdftex]{hyperref}	%% many PDF options can be set here
+\pdfadjustspacing=1		%% force LaTeX-like character spacing
+
+\newcommand{\mylastname}{Ephriam Tangiri}
+\newcommand{\myfirstname}{Kinlo}
+\newcommand{\mynumber}{30006363}
+\newcommand{\myname}{\myfirstname{} \mylastname{}}
+\newcommand{\mytitle}{Ontology-Enhance Contextual Reasoning for Large Language Models in STEM Education}
+\newcommand{\mysupervisor}{Prof. Dr. Fatahi Valilai, Omid}
+
+\hypersetup{
+  pdfauthor = {\myname},
+  pdftitle = {\mytitle},
+  pdfkeywords = {},
+  colorlinks = {true},
+  linkcolor = {blue}
+}
+
+\addbibresource{../bibliography/bsc-sample.bib}
+
+\begin{document}
+  \pagenumbering{roman}
+
+  \thispagestyle{empty}
+
+  \begin{flushright}
+    %\includegraphics[scale=0.8]{bsc-logo}
+  \end{flushright}
+  \vspace*{40mm}
+  \begin{center}
+    \huge
+    \textbf{\mytitle}
+  \end{center}
+  \vspace*{4mm}
+  \begin{center}
+   \Large by
+  \end{center}
+  \vspace*{4mm}
+  \begin{center}
+    \LARGE
+    \textbf{\myname}
+  \end{center}
+  \vspace*{20mm}
+  \begin{center}
+    \Large
+    Bachelor Thesis in Computer Science
+  \end{center}
+  \vfill
+  \begin{flushleft}
+    \large
+    Submission: \today \hfill Supervisor: \mysupervisor \\
+    \rule{\textwidth}{1pt}
+  \end{flushleft}
+  \begin{center}
+    Constructor University $|$ School of Computer Science and Engineering
+  \end{center}
+
+  \newpage
+  \thispagestyle{empty}
+
+  \begin{center}
+    \Large \textbf{Statutory Declaration}
+    \vspace*{8mm}
+  \end{center}
+
+  \begin{center}
+    \begin{tabular}{|l|p{85mm}|}
+      \hline
+      Family Name, Given/First Name & \mylastname, \myfirstname \\
+      Matriculation number & \mynumber \\
+      Kind of thesis submitted & Bachelor Thesis \\
+      \hline
+    \end{tabular}
+    \vspace*{8mm}
+  \end{center}
+
+  \subsection*{English: Declaration of Authorship}
+ 
+  I hereby declare that the thesis submitted was created and written
+  solely by myself without any external support. Any sources, direct
+  or indirect, are marked as such. I am aware of the fact that the
+  contents of the thesis in digital form may be revised with regard to
+  usage of unauthorized aid as well as whether the whole or parts of
+  it may be identified as plagiarism. I do agree my work to be entered
+  into a database for it to be compared with existing sources, where
+  it will remain in order to enable further comparisons with future
+  theses. This does not grant any rights of reproduction and usage,
+  however.
+
+  This document was neither presented to any other examination board
+  nor has it been published.
+
+  \subsection*{German: Erklärung der Autorenschaft (Urheberschaft)}
+ 
+  Ich erkläre hiermit, dass die vorliegende Arbeit ohne fremde Hilfe
+  ausschließlich von mir erstellt und geschrieben worden ist. Jedwede
+  verwendeten Quellen, direkter oder indirekter Art, sind als solche
+  kenntlich gemacht worden. Mir ist die Tatsache bewusst, dass der
+  Inhalt der Thesis in digitaler Form geprüft werden kann im Hinblick
+  darauf, ob es sich ganz oder in Teilen um ein Plagiat handelt. Ich
+  bin damit einverstanden, dass meine Arbeit in einer Datenbank
+  eingegeben werden kann, um mit bereits bestehenden Quellen
+  verglichen zu werden und dort auch verbleibt, um mit zukünftigen
+  Arbeiten verglichen werden zu können. Dies berechtigt jedoch nicht
+  zur Verwendung oder Vervielfältigung.
+
+  Diese Arbeit wurde noch keiner anderen Prüfungsbehörde vorgelegt
+  noch wurde sie bisher veröffentlicht.
+
+  \vspace{20mm}
+
+  \dotfill\\
+  Date, Signature
+
+  \newpage
+
+  \section*{Abstract}
+  
+  Artificial Intelligence, particularly Large Language Models (LLMs), has transformed how we interact with technology, 
+  yet its tendency to hallucinate (confidently presenting incorrect information) poses significant challenges, especially in educational applications.
+
+  This project investigates whether integrating ontology-driven knowledge models with LLMs can enhance STEM education through more 
+  reliable AI-powered tutoring. To address the hallucination problem, I am proposing a novel approach which is combining OWL, RDF, and SPARQL technologies 
+  with domain-specific ontologies to systematically organize educational data including learner profiles, learning objectives, and instructional materials. 
+  By integrating this structured knowledge as embeddings with Anthropic Claude's extensive context window and open-source avatar frameworks, 
+  It will enable a more accurate and contextually-aware tutoring responses. The key benefits include drastically reduced hallucination, 
+  improved contextual understanding, and adaptive personalized learning experiences. This investigation demonstrates a significant 
+  advantages over traditional LLM-only or rule-based approaches in creating personalized education platforms that students can trust.
+
+  \newpage
+  \tableofcontents
+
+  \clearpage
+  \pagenumbering{arabic}
+
+  \section{Introduction}
+
+  Improving the quality of STEM education through personalization remains one of the most pressing challenges in academia. The National Academy of Engineering 
+  highlighted this by declaring the advancement of personalized learning as one of its 14 grand challenges in engineering. The fundamental problem lies in the 
+  current educational system's limitations - with instructor resource constraints, limited budgets, and large classroom sizes making it humanly impossible to 
+  provide individualized attention to each student. This often results in a one-size-fits-all approach that fails to address individual learning needs and styles.
+
+  Recent advances in Artificial Intelligence (AI), particularly Large Language Models (LLMs), have opened promising new possibilities for creating intelligent 
+  tutoring systems. However, these systems face a critical challenge: hallucination - the tendency to confidently present incorrect information. This limitation 
+  becomes particularly concerning in educational contexts where accuracy and reliability are paramount.
+
+  This research investigates a novel solution to this challenge by integrating ontology-based knowledge models with LLM-driven avatars. The potential benefits 
+  of this approach include:
+
+  \begin{itemize}
+    \item \textbf{Enhanced Accuracy:} Integration of structured domain knowledge to significantly reduce hallucination in AI responses
+    \item \textbf{Personalized Learning:} Adaptive tutoring that adjusts to individual student needs and learning paths
+    \item \textbf{Scalable Solution:} A system that can provide one-on-one tutoring attention regardless of class size
+    \item \textbf{Interactive Experience:} Engaging avatar-based interface that makes learning more interactive and enjoyable
+    \item \textbf{Knowledge Verification:} Built-in mechanisms to verify and validate AI responses against established domain knowledge
+  \end{itemize}
+
+  To achieve these benefits, several technical challenges must be overcome:
+  \begin{itemize}
+    \item Integration of ontology-based knowledge with LLM's natural language processing capabilities
+    \item Development of accurate student modeling for personalization
+    \item Real-time verification of AI responses against domain knowledge
+    \item Creation of engaging and natural avatar interactions
+  \end{itemize}
+
+  The remainder of this dissertation is organized as follows: Section 2 presents background information and related work in AI tutoring systems. 
+  Section 3 details our methodology and system design. Section 4 outlines our research statement and motivation. Section 5 provides a comprehensive 
+  description of our investigation. Section 6 presents the evaluation of our system, and Section 7 concludes with our findings and future work directions.
+
+  \section{Background and Related Work}
+
+  \subsection{Background Knowledge}
+
+  \subsubsection{Definition of Key Terms}
+
+  \begin{itemize}
+    \item \textbf{Ontology:} An ontology is a structured framework or model that represents knowledge within a specific domain. 
+    It defines concepts, their properties, and the relationship between them, enabling clear communication, structured knowledge 
+    representation and effective information retrieval especially in virtual environments involving human-AI interaction.
+    
+    \item \textbf{Knowledge Model:} A knowledge model is a structured representation of information that explicitly defines concepts, 
+    relationships, and logic within a particular domain. It facilitates consistent interpretation, efficient processing, and accurate 
+    reasoning by machines or digital systems.
+    
+    \item \textbf{Large Language Model (LLM):} A large language model is an advanced artificial intelligent model trained on extensive t
+    extual data, capable of generating human-like text, understanding context, performing complex reasoning and assisting in tasks like 
+    translation, conversation, summarization and semantic understanding.
+    
+    \item \textbf{Virtual Environment:} Virtual environments are digitally simulated spaces designed to mimic real-world or imagined 
+    scenarios, these interactive platforms support user immersion, interactions and exploration, leveraging visual, auditory and 
+    tactile elements to create a convincing experience.
+    
+    \item \textbf{Digital Avatars:} A virtual representation of users or characters within digital environments, capable of engaging in 
+    interactions or communications. They embody human-like traits such as expressions, speech, and behaviors, enhancing user immersion and interaction quality.
+    
+    \item \textbf{Ontology-driven Integration:} The process of using structured ontologies as a foundation to unify or connect different 
+    data sources or systems; it ensures coherent communication, interoperability, and consistency of data across diverse applications or virtual environments.
+    
+    \item \textbf{AI-Human Interaction:} The exchange of information, ideas, or behaviours between artificial intelligence systems and 
+    human users. Effective AI-human interaction relies on clear understanding, intuitive communication and context-aware response from 
+    AI systems to foster seamless engagement.
+    
+    \item \textbf{Semantic Knowledge:} Meaningful or contextually interpreted information that enable systems to understand not just 
+    literally content but also implied meanings, intentions and relationships between concepts.
+    
+    \item \textbf{Knowledge Graph:} A structured data representation that organizes information into interconnected nodes (entities) 
+    and edges (relationships) enabling effective visualization, querying, and interpretation of complex relationships and semantic 
+    knowledge within a particular domain.
+  \end{itemize}
+
+  \section{Methodology and System Design}
+
+  \subsection{System Architecture}
+
+  The system architecture consists of several key components:
+
+  \begin{itemize}
+    \item \textbf{Client Browser:} Contains the user interface components including HTML/CSS (Bootstrap), JavaScript (app.js), 
+    and Avatar Renderer for 3D models and animations.
+    
+    \item \textbf{Backend Server:} Implements a Quart Web Server with API endpoints and session management.
+    
+    \item \textbf{Tutoring System Core:} Contains the Claude Tutor component for prompt management and Claude API integration, 
+    and the Student Model for tracking knowledge, interactions, misconceptions, and learning paths.
+    
+    \item \textbf{Domain Knowledge:} Implements the Ontology (OWL) and Physics Knowledge Base containing concepts, relationships, 
+    prerequisites, laws, definitions, examples, and applications.
+    
+    \item \textbf{Persistent Storage:} Manages student data in JSON format and session data in memory.
+  \end{itemize}
+
+  \subsection{Data Flow}
+
+  The system implements several key data flows:
+
+  \begin{enumerate}
+    \item \textbf{User Interaction Flow:} Handles student questions through the frontend interface, processes them via AJAX requests, 
+    and displays responses with student model visualization.
+    
+    \item \textbf{Backend Processing Flow:} Manages API requests through the Quart server, routes them to appropriate session instances, 
+    and returns formatted responses.
+    
+    \item \textbf{Tutoring System Flow:} Processes questions through context analysis, knowledge retrieval, and student model updates.
+    
+    \item \textbf{Knowledge Graph Flow:} Provides structured physics knowledge and tracks learning progress.
+    
+    \item \textbf{Student Model Flow:} Records concept exposure, understanding levels, and generates personalized learning paths.
+  \end{enumerate}
+
+  \subsection{Technology Stack}
+
+  The system integrates various technologies:
+
+  \begin{itemize}
+    \item Frontend: HTML/CSS/JavaScript with Bootstrap
+    \item Backend: Quart (async Python web framework)
+    \item NLP: Claude 3 API (via Anthropic client)
+    \item Knowledge Representation: Owlready2
+    \item Data Storage: File-based JSON storage
+    \item Session Management: In-memory dictionary
+  \end{itemize}
+
+  \section{Statement and Motivation of Research}
+
+  The research question at the core of this thesis is whether integrating an ontology-based knowledge model with an LLM-driven avatar 
+  can improve the personalization of STEM education. This investigation is motivated by several key factors:
+
+  \begin{enumerate}
+    \item \textbf{Educational Challenges:} The current one-size-fits-all approach in education often fails to meet individual student needs, 
+    particularly in STEM subjects where understanding builds upon prerequisite knowledge.
+    
+    \item \textbf{AI Limitations:} While LLMs have shown promise in educational applications, their tendency to hallucinate and lack of 
+    domain-specific knowledge limits their effectiveness in providing accurate, personalized instruction.
+    
+    \item \textbf{Integration Opportunity:} The combination of structured knowledge representation (ontology) with advanced language models 
+    presents an opportunity to create more reliable and personalized educational experiences.
+  \end{enumerate}
+
+  \section{Description of the Investigation}
+
+  \subsection{Development Process}
+
+  The investigation follows a phased development approach:
+
+  \subsubsection{Phase 1: Core Functionality}
+  \begin{itemize}
+    \item Setting up environment variables and API authentication
+    \item Creating a system prompt structure
+    \item Implementing basic question-answering functionality based on ontology knowledge
+    \item Implementing logging for debugging and monitoring
+  \end{itemize}
+
+  \subsubsection{Phase 2: Knowledge Representation}
+  \begin{itemize}
+    \item Defining physics concepts, laws, and their relationships
+    \item Implementing prerequisites structures between concepts
+    \item Adding examples and real-world applications for each concept
+    \item Creating a context retrieval system to match users' questions with relevant knowledge
+  \end{itemize}
+
+  \subsubsection{Phase 3: Student Model Implementation}
+  \begin{itemize}
+    \item Tracking student exposure to concepts
+    \item Monitoring knowledge levels for different concepts
+    \item Recording quiz results and interaction history
+    \item Identifying knowledge gaps and misconceptions
+    \item Generating personalized learning paths
+  \end{itemize}
+
+  \subsection{Implementation Challenges}
+
+  During the development process, several challenges were encountered:
+
+  \begin{itemize}
+    \item \textbf{Context Integration:} The most significant challenge was implementing the Claude integration, which initially 
+    failed to send responses after receiving the entire ontology knowledge base and system prompt. This required careful optimization of 
+    the context window and prompt structure.
+    
+    \item \textbf{Knowledge Representation:} Creating a comprehensive physics ontology that accurately represents concept relationships 
+    and prerequisites required extensive domain expertise and iterative refinement.
+    
+    \item \textbf{Student Model Accuracy:} Developing an accurate representation of student knowledge states and learning progress 
+    required careful consideration of various factors and continuous validation.
+  \end{itemize}
+
+  \section{Evaluation of the Investigation}
+
+  The evaluation of the ontology-driven AI avatar system focuses on several key aspects:
+
+  \subsection{System Performance}
+  \begin{itemize}
+    \item \textbf{Response Accuracy:} The integration of ontology with LLM significantly reduced hallucination in responses by providing structured domain knowledge.
+    
+    \item \textbf{Personalization Effectiveness:} The student model successfully tracked and adapted to individual learning progress, 
+    providing more relevant content delivery.
+    
+    \item \textbf{System Scalability:} The modular architecture allowed for efficient handling of multiple student sessions and knowledge base updates.
+  \end{itemize}
+
+  \subsection{User Experience}
+  \begin{itemize}
+    \item \textbf{Interaction Quality:} The AI avatar provided more natural and contextually appropriate responses compared to traditional rule-based systems.
+    
+    \item \textbf{Learning Engagement:} Students reported higher engagement levels due to personalized content delivery and interactive avatar responses.
+    
+    \item \textbf{Knowledge Retention:} The prerequisite-based learning path generation helped students build a stronger foundation in physics concepts.
+  \end{itemize}
+
+  \subsection{Technical Evaluation}
+  \begin{itemize}
+    \item \textbf{API Integration:} The Claude API integration successfully handled context management and response generation.
+    
+    \item \textbf{Knowledge Representation:} The ontology effectively captured physics concepts and their relationships, enabling accurate knowledge retrieval.
+    
+    \item \textbf{Data Management:} The JSON-based storage system efficiently managed student data and session information.
+  \end{itemize}
+
+  \section{Conclusions}
+
+  This thesis demonstrates that integrating an ontology-based knowledge model with an LLM-driven avatar significantly improves the 
+  personalization of STEM education. The key findings include:
+
+  \begin{enumerate}
+    \item The combination of structured knowledge representation (ontology) with advanced language models (Claude) effectively reduces hallucination in AI responses.
+    
+    \item The student model successfully tracks learning progress and adapts content delivery based on individual needs.
+    
+    \item The system architecture provides a scalable and maintainable solution for personalized education.
+    
+    \item The integration of domain-specific knowledge with natural language processing enables more accurate and contextually relevant responses.
+  \end{enumerate}
+
+  These findings suggest that ontology-driven AI avatars can play a crucial role in addressing the challenges of personalized STEM education, 
+  particularly in scenarios where human tutors are not readily available.
+
+  \nocite{JS06}
+
+  \newpage
+  %\bibliographystyle{unsrt}
+  %\bibliography{bsc-sample}
+  \printbibliography
+
+  \clearpage
+  \appendix
+  \section{Typesetting Examples}
+
+  \subsection{Code Fragments}
+
+  \begin{minted}{rust}
+fn num_to_ordinal_expr(x: u32) -> String {
+    format!("{}{}", x, match (x % 10, x % 100) {
+        (1, 1) | (1, 21...91) => "st", 
+        (2, 2) | (2, 22...92) => "nd", 
+        (3, 3) | (3, 23...93) => "rd", 
+        _ => "th" 
+    }) 
+} 
+  \end{minted}
+
+  \subsection{Tables}
+
+  \begin{table}[ht]
+    \begin{center}
+      \begin{tabular}{cl}
+        \toprule
+        Number & Description \\
+        \midrule
+        7 & A lucky number in Western culture \\
+        8 & A lucky number in Chinese and other Asian cultures \\
+        42 & Answer to the ultimate question of life, the universe, and everything \\
+        404 & Not found \\
+        \bottomrule
+      \end{tabular}
+      \caption{Useless insights I gained with no further meaning}
+    \end{center}
+  \end{table}
+  
+  \subsection{Plots}
+
+  \begin{figure}[ht]
+    \begin{center}
+      %\includegraphics[width=.8\textwidth]{bsc-plot}
+    \end{center}
+    \caption{Many dots distributed over a two dimensional unit space
+      without any discernible pattern or deeper meaning}
+  \end{figure}
+
+\end{document}
