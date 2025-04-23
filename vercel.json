@@ -1,9 +1,13 @@
 {
   "version": 2,
+  "builds": [{ "src": "api/vercel.py", "use": "@vercel/python" }],
   "routes": [
-    { "src": "/api/ask", "dest": "/api/api_routes.py" },
+    { "src": "/api/(.*)", "dest": "api/vercel.py" },
     { "src": "/static/(.*)", "dest": "/static/$1" },
-    { "src": "/", "dest": "/static/index.html" },
-    { "src": "/debug", "dest": "/api/api_routes.py" }
-  ]
+    { "src": "/(.*)", "dest": "/static/$1" },
+    { "src": "/", "dest": "/static/index.html" }
+  ],
+  "env": {
+    "PYTHONPATH": "."
+  }
 }

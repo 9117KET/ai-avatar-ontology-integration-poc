@@ -1,3 +1,8 @@
+"""
+Vercel serverless function handler for the AI Tutoring System.
+This file provides the necessary wrapper for deploying the Flask app to Vercel.
+"""
+
 from http.server import BaseHTTPRequestHandler
 import os
 import sys
@@ -6,31 +11,40 @@ import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Import the Flask app
-from api.index import app
+from app import app
 
-# Create a handler class for Vercel
 class VercelHandler(BaseHTTPRequestHandler):
+    """Handler class for Vercel serverless functions."""
+    
     def do_GET(self):
-        # This is just a wrapper - not actually used but needed for Vercel
+        """Handle GET requests."""
         self.send_response(200)
         self.send_header('Content-type', 'text/plain')
         self.end_headers()
         self.wfile.write('Flask app is running'.encode('utf-8'))
 
     def do_POST(self):
+        """Handle POST requests."""
         self.send_response(200)
         self.send_header('Content-type', 'text/plain')
         self.end_headers()
         self.wfile.write('POST to Flask app'.encode('utf-8'))
 
-# Create a handler function for the serverless function
 def handler(req, res):
-    # Get the WSGI application
+    """
+    Vercel serverless function handler.
+    
+    Args:
+        req: The request object
+        res: The response object
+    
+    Returns:
+        The Flask application response
+    """
     def start_response(status, headers):
         res.statusCode = int(status.split(' ')[0])
         for header, value in headers:
             res.setHeader(header, value)
         return res.write
 
-    # Run the Flask app
     return app(req, start_response) 
