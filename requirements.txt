@@ -6,8 +6,9 @@ python-dotenv>=1.0.0 # Environment variable management for API keys
 owlready2>=0.45      # Ontology management and reasoning
 
 # Web Framework  
-flask>=2.3.0         # Web server
-flask-cors>=4.0.0    # Cross-origin resource sharing support
+quart>=0.18.0        # Async web server
+quart-cors>=0.6.0    # Cross-origin resource sharing support
+hypercorn>=0.14.3    # ASGI server for Quart
 serverless-wsgi>=3.0.1  # WSGI support for serverless deployment
 
 # Security

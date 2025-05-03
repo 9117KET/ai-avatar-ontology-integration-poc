@@ -15,196 +15,271 @@ document.addEventListener("DOMContentLoaded", () => {
   const questionInput = document.getElementById("questionInput");
   const sendButton = document.getElementById("sendButton");
   const loadingOverlay = document.getElementById("loadingOverlay");
+  const themeToggle = document.getElementById("themeToggle");
   const exposedConcepts = document.getElementById("exposedConcepts");
   const knowledgeLevels = document.getElementById("knowledgeLevels");
+  const progressBar = document.getElementById("progressBar");
+  const overallProgress = document.getElementById("overallProgress");
 
-  // Session ID - generate a unique ID for this session
-  // This is used to maintain state on the backend across requests
+  // Generate a session ID for this conversation
   const sessionId = "session_" + Math.random().toString(36).substring(2, 15);
 
+  // Theme Management
+  const theme = {
+    init() {
+      // Check for saved theme preference or system preference
+      const savedTheme = localStorage.getItem("theme");
+      const systemDark = window.matchMedia(
+        "(prefers-color-scheme: dark)"
+      ).matches;
+
+      if (savedTheme === "dark" || (!savedTheme && systemDark)) {
+        document.documentElement.classList.add("dark");
+        this.updateThemeIcon(true);
+      } else {
+        document.documentElement.classList.remove("dark");
+        this.updateThemeIcon(false);
+      }
+
+      // Listen for system theme changes
+      window
+        .matchMedia("(prefers-color-scheme: dark)")
+        .addEventListener("change", (e) => {
+          if (!localStorage.getItem("theme")) {
+            if (e.matches) {
+              document.documentElement.classList.add("dark");
+              this.updateThemeIcon(true);
+            } else {
+              document.documentElement.classList.remove("dark");
+              this.updateThemeIcon(false);
+            }
+          }
+        });
+    },
+
+    toggle() {
+      if (document.documentElement.classList.contains("dark")) {
+        document.documentElement.classList.remove("dark");
+        localStorage.setItem("theme", "light");
+        this.updateThemeIcon(false);
+      } else {
+        document.documentElement.classList.add("dark");
+        localStorage.setItem("theme", "dark");
+        this.updateThemeIcon(true);
+      }
+    },
+
+    updateThemeIcon(isDark) {
+      const icon = themeToggle.querySelector(".material-icons");
+      icon.textContent = isDark ? "light_mode" : "dark_mode";
+      icon.className = `material-icons ${
+        isDark ? "text-yellow-400" : "text-gray-600"
+      }`;
+    },
+  };
+
+  // API Management
+  const api = {
+    async fetchTutorResponse(question) {
+      const response = await fetch("/api/ask", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          question,
+          session_id: sessionId,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Network response was not ok");
+      }
+
+      return response.json();
+    },
+
+    async getStudentModel() {
+      const response = await fetch(`/api/student_model/${sessionId}`);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to fetch student model");
+      }
+
+      return response.json();
+    },
+
+    async getLearningPath(targetConcept) {
+      const response = await fetch(
+        `/api/learning_path/${sessionId}/${encodeURIComponent(targetConcept)}`
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to fetch learning path");
+      }
+
+      return response.json();
+    },
+  };
+
+  // Chat Management
+  const chat = {
+    async sendMessage(message) {
+      // Add user message to chat
+      this.addMessage(message, "user");
+
+      // Show loading state
+      loadingOverlay.classList.remove("hidden");
+      loadingOverlay.classList.add("flex");
+
+      try {
+        // Get tutor's response
+        const response = await api.fetchTutorResponse(message);
+        this.addMessage(response.response, "tutor");
+
+        // Update student model visualization
+        if (response.student_model) {
+          this.updateStudentModel(response.student_model);
+        }
+      } catch (error) {
+        console.error("Error:", error);
+        this.addMessage(
+          "Sorry, I encountered an error. Please try again.",
+          "tutor"
+        );
+      } finally {
+        loadingOverlay.classList.add("hidden");
+        loadingOverlay.classList.remove("flex");
+      }
+    },
+
+    updateStudentModel(studentModel) {
+      // Update exposed concepts
+      if (studentModel.exposed_concepts) {
+        this.updateConcepts(studentModel.exposed_concepts);
+      }
+
+      // Update knowledge levels
+      if (studentModel.knowledge_level) {
+        this.updateKnowledgeLevels(studentModel.knowledge_level);
+      }
+
+      // Calculate and update overall progress
+      if (studentModel.understood_concepts && studentModel.exposed_concepts) {
+        const progress =
+          studentModel.understood_concepts.length /
+          Math.max(studentModel.exposed_concepts.length, 1);
+        this.updateProgress(progress);
+      }
+    },
+
+    addMessage(content, type) {
+      const messageDiv = document.createElement("div");
+      messageDiv.className = `${type}-message`;
+
+      const avatar = document.createElement("div");
+      avatar.className = "avatar";
+
+      // Use Material Icons instead of images
+      const icon = document.createElement("span");
+      icon.className = `material-icons avatar-icon ${
+        type === "tutor"
+          ? "text-blue-600 dark:text-blue-400"
+          : "text-gray-600 dark:text-gray-400"
+      }`;
+      icon.textContent = type === "tutor" ? "smart_toy" : "person";
+      avatar.appendChild(icon);
+
+      const message = document.createElement("div");
+      message.className = "message";
+      message.innerHTML = `<p>${this.formatMessage(content)}</p>`;
+
+      messageDiv.appendChild(type === "user" ? message : avatar);
+      messageDiv.appendChild(type === "user" ? avatar : message);
+
+      chatContainer.appendChild(messageDiv);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    },
+
+    formatMessage(content) {
+      // Convert markdown-style code blocks to HTML
+      return content
+        .replace(/`([^`]+)`/g, "<code>$1</code>")
+        .replace(/\n/g, "<br>")
+        .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+        .replace(/\*([^*]+)\*/g, "<em>$1</em>");
+    },
+
+    updateProgress(progress) {
+      const percentage = Math.round(progress * 100);
+      progressBar.style.width = `${percentage}%`;
+      overallProgress.textContent = `${percentage}%`;
+    },
+
+    updateConcepts(concepts) {
+      exposedConcepts.innerHTML = concepts
+        .map(
+          (concept) => `
+        <div class="concept-tag">
+          <span class="material-icons text-sm mr-1">check_circle</span>
+          ${concept}
+        </div>
+      `
+        )
+        .join("");
+    },
+
+    updateKnowledgeLevels(levels) {
+      knowledgeLevels.innerHTML = Object.entries(levels)
+        .map(
+          ([topic, level]) => `
+        <div class="knowledge-item">
+          <div class="flex justify-between items-center mb-2">
+            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">${topic}</span>
+            <span class="text-sm text-blue-600 dark:text-blue-400">${Math.round(
+              level * 100
+            )}%</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-bar-fill" style="width: ${level * 100}%"></div>
+          </div>
+        </div>
+      `
+        )
+        .join("");
+    },
+  };
+
   // Event Listeners
-  sendButton.addEventListener("click", handleSendMessage);
-  questionInput.addEventListener("keypress", (e) => {
-    if (e.key === "Enter") {
-      handleSendMessage();
+  theme.init();
+
+  themeToggle.addEventListener("click", () => {
+    theme.toggle();
+  });
+
+  sendButton.addEventListener("click", () => {
+    const message = questionInput.value.trim();
+    if (message) {
+      chat.sendMessage(message);
+      questionInput.value = "";
     }
   });
 
-  /**
-   * Handles sending a user message to the tutor
-   * 1. Captures user input
-   * 2. Renders in chat window
-   * 3. Sends to API
-   * 4. Displays response
-   * 5. Updates student model visualization
-   */
-  async function handleSendMessage() {
-    const question = questionInput.value.trim();
-    if (!question) return;
-
-    // Add user message to the chat
-    addMessageToChat("user", question);
-
-    // Clear input field
-    questionInput.value = "";
-
-    // Show loading spinner
-    loadingOverlay.classList.remove("d-none");
-
-    try {
-      // Call the API
-      const response = await fetchTutorResponse(question);
-
-      // Add tutor's response to the chat
-      addMessageToChat("tutor", response.response);
-
-      // Update student model display
-      updateStudentModelDisplay(response.student_model);
-    } catch (error) {
-      console.error("Error:", error);
-      addMessageToChat(
-        "tutor",
-        "Sorry, I encountered an error. Please try again."
-      );
-    } finally {
-      // Hide loading spinner
-      loadingOverlay.classList.add("d-none");
-
-      // Scroll to bottom of chat
-      scrollToBottom();
+  questionInput.addEventListener("keypress", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendButton.click();
     }
-  }
+  });
 
-  /**
-   * Sends the question to the backend API and returns the response
-   * Uses the session ID to maintain conversation context
-   *
-   * @param {string} question - The user's question
-   * @returns {Promise<Object>} - Response containing tutor answer and student model
-   */
-  async function fetchTutorResponse(question) {
-    const response = await fetch("/api/ask", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        question,
-        session_id: sessionId,
-      }),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || "Failed to get response");
-    }
-
-    return await response.json();
-  }
-
-  /**
-   * Adds a message to the chat container with appropriate styling
-   *
-   * @param {string} role - Either "tutor" or "user"
-   * @param {string} text - The message text
-   */
-  function addMessageToChat(role, text) {
-    const messageDiv = document.createElement("div");
-    messageDiv.className = role === "tutor" ? "tutor-message" : "user-message";
-
-    const avatarDiv = document.createElement("div");
-    avatarDiv.className = "avatar";
-
-    const avatarImg = document.createElement("img");
-    avatarImg.src =
-      role === "tutor"
-        ? "https://via.placeholder.com/50"
-        : "https://via.placeholder.com/50/24a0ed";
-    avatarImg.alt = role === "tutor" ? "Tutor Avatar" : "You";
-
-    avatarDiv.appendChild(avatarImg);
-
-    const messageTextDiv = document.createElement("div");
-    messageTextDiv.className = "message";
-    messageTextDiv.innerHTML = `<p>${text}</p>`;
-
-    messageDiv.appendChild(avatarDiv);
-    messageDiv.appendChild(messageTextDiv);
-
-    chatContainer.appendChild(messageDiv);
-
-    // Scroll to the bottom
-    scrollToBottom();
-  }
-
-  // Scroll to the bottom of the chat container
-  function scrollToBottom() {
-    chatContainer.scrollTop = chatContainer.scrollHeight;
-  }
-
-  // Update the student model display
-  function updateStudentModelDisplay(studentModel) {
-    if (!studentModel) return;
-
-    // Update exposed concepts
-    exposedConcepts.innerHTML = "";
-    if (studentModel.exposed_concepts.length === 0) {
-      exposedConcepts.innerHTML =
-        '<li class="list-group-item">No concepts explored yet</li>';
-    } else {
-      studentModel.exposed_concepts.forEach((concept) => {
-        const li = document.createElement("li");
-        li.className = "list-group-item";
-        li.textContent = concept;
-        exposedConcepts.appendChild(li);
-      });
-    }
-
-    // Update knowledge levels
-    knowledgeLevels.innerHTML = "";
-    const knowledgeEntries = Object.entries(studentModel.knowledge_level);
-
-    if (knowledgeEntries.length === 0) {
-      knowledgeLevels.innerHTML = "<p>No knowledge level data yet</p>";
-    } else {
-      knowledgeEntries.forEach(([concept, level]) => {
-        const percentage = Math.round(level * 100);
-
-        const itemDiv = document.createElement("div");
-        itemDiv.className = "knowledge-item";
-
-        const labelDiv = document.createElement("div");
-        labelDiv.className = "d-flex justify-content-between";
-        labelDiv.innerHTML = `
-                    <span>${concept}</span>
-                    <span>${percentage}%</span>
-                `;
-
-        const progressDiv = document.createElement("div");
-        progressDiv.className = "progress";
-        progressDiv.innerHTML = `
-                    <div class="progress-bar ${getProgressBarColor(level)}" 
-                         role="progressbar" 
-                         style="width: ${percentage}%" 
-                         aria-valuenow="${percentage}" 
-                         aria-valuemin="0" 
-                         aria-valuemax="100"></div>
-                `;
-
-        itemDiv.appendChild(labelDiv);
-        itemDiv.appendChild(progressDiv);
-        knowledgeLevels.appendChild(itemDiv);
-      });
-    }
-  }
-
-  // Get the appropriate Bootstrap color class for a knowledge level
-  function getProgressBarColor(level) {
-    if (level < 0.3) return "bg-danger";
-    if (level < 0.7) return "bg-warning";
-    return "bg-success";
-  }
-
-  // Initialize - scroll to bottom of chat
-  scrollToBottom();
+  // Initialize with example knowledge levels
+  chat.updateKnowledgeLevels({
+    Mechanics: 0.7,
+    Thermodynamics: 0.4,
+    Electromagnetism: 0.2,
+    "Quantum Physics": 0.1,
+  });
 });

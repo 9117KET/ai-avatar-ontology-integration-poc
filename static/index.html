@@ -14,38 +14,76 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Physics Tutor</title>
-    <!-- Bootstrap for responsive design and UI components -->
+    <title>AI Physics Tutor</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Material Icons -->
     <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
       rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
     />
-    <!-- Custom styles for the chat interface -->
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Custom styles -->
     <link rel="stylesheet" href="static/css/style.css" />
+    <!-- Tailwind Config -->
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {},
+        },
+      };
+    </script>
   </head>
-  <body>
-    <div class="container">
-      <!-- Main chat interface card -->
-      <div class="row mt-4">
-        <div class="col-md-8 offset-md-2">
-          <div class="card">
-            <div class="card-header bg-primary text-white">
-              <h3 class="mb-0">Physics Tutor</h3>
-            </div>
-            <div class="card-body">
-              <!-- Chat messages container - populated by JavaScript -->
-              <div id="chatContainer" class="chat-container mb-3">
+  <body class="bg-gray-50 dark:bg-gray-900">
+    <!-- Theme Toggle -->
+    <div class="fixed top-4 right-4 z-50">
+      <button
+        id="themeToggle"
+        class="p-2 rounded-full bg-white dark:bg-gray-800 shadow-lg"
+      >
+        <span class="material-icons dark:text-yellow-400 text-gray-600"
+          >dark_mode</span
+        >
+      </button>
+    </div>
+
+    <div class="container mx-auto px-4 py-8">
+      <div class="max-w-6xl mx-auto">
+        <!-- Header -->
+        <header class="text-center mb-8">
+          <h1 class="text-4xl font-bold text-gray-800 dark:text-white mb-2">
+            AI Physics Tutor
+          </h1>
+          <p class="text-gray-600 dark:text-gray-300">
+            Your personal guide to understanding physics concepts
+          </p>
+        </header>
+
+        <!-- Main Content Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <!-- Chat Interface -->
+          <div class="lg:col-span-2">
+            <div
+              class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden"
+            >
+              <!-- Chat Messages -->
+              <div id="chatContainer" class="chat-container p-4">
                 <div class="welcome-message">
                   <div class="tutor-message">
                     <div class="avatar">
-                      <img
-                        src="https://via.placeholder.com/50"
-                        alt="Tutor Avatar"
-                      />
+                      <span
+                        class="material-icons avatar-icon text-blue-600 dark:text-blue-400"
+                        >smart_toy</span
+                      >
                     </div>
                     <div class="message">
-                      <p>
-                        Welcome to the Physics Tutor! I'm here to help you
+                      <p class="text-gray-800 dark:text-gray-200">
+                        Welcome! I'm your AI Physics Tutor. I'm here to help you
                         understand physics concepts. What would you like to
                         learn about today?
                       </p>
@@ -54,43 +92,80 @@
                 </div>
               </div>
 
-              <!-- Input group for student questions -->
-              <div class="input-group">
-                <input
-                  type="text"
-                  id="questionInput"
-                  class="form-control"
-                  placeholder="Type your question here..."
-                />
-                <button id="sendButton" class="btn btn-primary">Send</button>
+              <!-- Input Area -->
+              <div class="border-t border-gray-200 dark:border-gray-700 p-4">
+                <div class="flex items-center space-x-2">
+                  <input
+                    type="text"
+                    id="questionInput"
+                    class="flex-1 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Ask your physics question..."
+                  />
+                  <button
+                    id="sendButton"
+                    class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200 flex items-center"
+                  >
+                    <span class="material-icons mr-1">send</span>
+                    Send
+                  </button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </div>
 
-      <!-- Student Model Panel - Shows learning progress -->
-      <div class="row mt-4">
-        <div class="col-md-8 offset-md-2">
-          <div class="card">
-            <div class="card-header bg-info text-white">
-              <h5 class="mb-0">Student Learning Progress</h5>
-            </div>
-            <div class="card-body">
-              <div class="row">
-                <!-- Display of concepts the student has been exposed to -->
-                <div class="col-md-6">
-                  <h6>Exposed Concepts</h6>
-                  <ul id="exposedConcepts" class="list-group">
-                    <!-- Will be populated dynamically by JavaScript -->
-                  </ul>
+          <!-- Learning Progress Panel -->
+          <div class="lg:col-span-1">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+              <h2
+                class="text-xl font-semibold text-gray-800 dark:text-white mb-4"
+              >
+                Learning Progress
+              </h2>
+
+              <!-- Progress Overview -->
+              <div class="mb-6">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-sm text-gray-600 dark:text-gray-300"
+                    >Overall Progress</span
+                  >
+                  <span
+                    class="text-sm font-medium text-blue-600 dark:text-blue-400"
+                    id="overallProgress"
+                    >0%</span
+                  >
                 </div>
-                <!-- Visual representation of knowledge levels -->
-                <div class="col-md-6">
-                  <h6>Understanding Level</h6>
-                  <div id="knowledgeLevels">
-                    <!-- Will be populated dynamically by JavaScript -->
-                  </div>
+                <div
+                  class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5"
+                >
+                  <div
+                    class="bg-blue-600 h-2.5 rounded-full"
+                    style="width: 0%"
+                    id="progressBar"
+                  ></div>
+                </div>
+              </div>
+
+              <!-- Concepts List -->
+              <div>
+                <h3
+                  class="text-lg font-medium text-gray-800 dark:text-white mb-3"
+                >
+                  Mastered Concepts
+                </h3>
+                <div id="exposedConcepts" class="space-y-3">
+                  <!-- Concepts will be populated dynamically -->
+                </div>
+              </div>
+
+              <!-- Knowledge Levels -->
+              <div class="mt-6">
+                <h3
+                  class="text-lg font-medium text-gray-800 dark:text-white mb-3"
+                >
+                  Understanding Levels
+                </h3>
+                <div id="knowledgeLevels" class="space-y-4">
+                  <!-- Knowledge levels will be populated dynamically -->
                 </div>
               </div>
             </div>
@@ -99,16 +174,24 @@
       </div>
     </div>
 
-    <!-- Loading Spinner - Shown during API requests -->
-    <div id="loadingOverlay" class="loading-overlay d-none">
-      <div class="spinner-border text-light" role="status">
-        <span class="visually-hidden">Loading...</span>
+    <!-- Loading Overlay -->
+    <div
+      id="loadingOverlay"
+      class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50"
+    >
+      <div
+        class="bg-white dark:bg-gray-800 rounded-lg p-6 flex items-center space-x-4"
+      >
+        <div
+          class="animate-spin rounded-full h-8 w-8 border-4 border-blue-600 border-t-transparent"
+        ></div>
+        <p class="text-gray-800 dark:text-gray-200">
+          Processing your question...
+        </p>
       </div>
     </div>
 
-    <!-- JavaScript dependencies -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Main application JavaScript -->
+    <!-- Scripts -->
     <script src="static/js/app.js"></script>
   </body>
 </html>

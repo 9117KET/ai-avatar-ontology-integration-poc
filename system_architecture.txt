@@ -1,0 +1,113 @@
+# AI-Powered Tutoring System Architecture
+=======================================
+
+1. System Overview
+-----------------
+The system is an AI-powered tutoring platform that combines ontology-based knowledge representation with Large Language Model (LLM) integration to deliver personalized learning experiences. The architecture follows a modular, service-oriented design pattern with clear separation of concerns.
+
+2. Core Components
+-----------------
+2.1. Main Application Layer
+    - Flask-based web application (app.py)
+    - Handles HTTP requests and routing
+    - Manages application state and session handling
+    - Coordinates communication between different components
+
+2.2. API Layer
+    - RESTful API endpoints (/api/*)
+    - Request/response handling
+    - Authentication and authorization
+    - Natural Language Processing integration
+    - Stateless design for scalability
+
+2.3. LLM Integration Layer
+    - Claude AI Tutor implementation
+    - Student modeling and progress tracking
+    - Adaptive learning algorithms
+    - Conversation management
+    - Learning pattern analysis
+
+2.4. Ontology System
+    - Knowledge representation schemas
+    - Domain modeling
+    - Content organization
+    - Learning objective mapping
+    - Relationship management
+
+3. Data Flow Architecture
+------------------------
+3.1. Client Request Flow
+    Client → API Gateway → Application Layer → LLM/Ontology Services → Response
+
+3.2. Learning Session Flow
+    1. Student initiates session
+    2. System loads student model
+    3. LLM processes input
+    4. Ontology provides context
+    5. System generates response
+    6. Updates student model
+    7. Returns personalized content
+
+4. Integration Points
+-------------------
+4.1. LLM-Ontology Integration
+    - Knowledge base querying
+    - Context enhancement
+    - Dynamic content generation
+    - Learning path optimization
+
+4.2. API-LLM Integration
+    - Conversation handling
+    - Response processing
+    - Session management
+    - Error handling
+
+5. Technical Stack
+----------------
+- Backend: Python/Flask
+- AI: Claude LLM
+- Knowledge Base: Ontology-based system
+- API: RESTful architecture
+- Testing: pytest framework
+- Deployment: Vercel
+
+6. Security Architecture
+----------------------
+- Authentication layer
+- Session management
+- API security
+- Data encryption
+- Access control
+- Privacy protection
+
+7. Scalability Design
+--------------------
+- Modular component design
+- Stateless API architecture
+- Cacheable responses
+- Asynchronous processing
+- Horizontal scaling capability
+
+8. Monitoring and Logging
+------------------------
+- System health monitoring
+- Performance metrics
+- Error tracking
+- Usage analytics
+- Learning progress tracking
+
+9. Development and Deployment
+---------------------------
+- Version control
+- CI/CD pipeline
+- Testing automation
+- Documentation
+- Deployment strategies
+
+10. Future Extensibility
+-----------------------
+- Plugin architecture
+- API versioning
+- Module independence
+- Interface standardization
+- Feature flagging capability 
