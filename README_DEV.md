@@ -1,3 +1,4 @@
+
 # Ontology-Enhanced Contextual Reasoning for Large Language Models in STEM Education
 
 A research project investigating the integration of ontology-driven knowledge models with Large Language Models (LLMs) to enhance STEM education through more reliable AI-powered tutoring.

@@ -55,10 +55,27 @@ class ClaudeTutor:
         logger.debug("API key loaded successfully")
         
         try:
-            self.client = AsyncAnthropic(api_key=self.api_key)
-            logger.debug("Anthropic client initialized")
+            # Initialize the Anthropic client with proper error handling
+            logger.debug("Initializing Anthropic client with API key...")
+            
+            # Ensure API key is properly formatted (should start with "sk-ant-")
+            if not self.api_key.startswith("sk-ant-"):
+                logger.error(f"API key appears to be in wrong format. Should start with 'sk-ant-'")
+                raise ValueError("Invalid API key format")
+                
+            # Create the client with explicit timeout settings
+            self.client = AsyncAnthropic(
+                api_key=self.api_key,
+                timeout=60.0  # Increase timeout to avoid connection issues
+            )
+            logger.debug("Anthropic client initialized successfully")
+        except ImportError as e:
+            logger.error(f"Failed to import Anthropic library: {e}")
+            raise
         except Exception as e:
             logger.error(f"Failed to initialize Anthropic client: {e}")
+            logger.error(f"Error type: {type(e).__name__}")
+            logger.error(f"Error details: {str(e)}")
             raise
         
         # Load the ontology
