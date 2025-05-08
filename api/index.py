@@ -182,8 +182,44 @@ app.debug = False
 # For Vercel serverless functions
 def handler(request):
     """Vercel serverless function handler."""
-    return app(request.environ, lambda status, headers, exc_info=None: Response("", status=status, headers=headers))
+    if request.method == 'OPTIONS':
+        # Handle CORS preflight request
+        response = Response()
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
+        response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
+        return response
+
+    # Convert Vercel request to WSGI environ
+    environ = {
+        'REQUEST_METHOD': request.method,
+        'SCRIPT_NAME': '',
+        'PATH_INFO': request.path,
+        'QUERY_STRING': request.query_string.decode('utf-8') if request.query_string else '',
+        'SERVER_PROTOCOL': 'HTTP/1.1',
+        'wsgi.version': (1, 0),
+        'wsgi.url_scheme': 'https',
+        'wsgi.input': request.stream,
+        'wsgi.errors': sys.stderr,
+        'wsgi.multithread': False,
+        'wsgi.multiprocess': False,
+        'wsgi.run_once': False,
+        'HTTP_HOST': request.headers.get('host', ''),
+        'CONTENT_TYPE': request.headers.get('content-type', ''),
+        'CONTENT_LENGTH': request.headers.get('content-length', ''),
+    }
+
+    # Add HTTP headers
+    for key, value in request.headers.items():
+        key = key.upper().replace('-', '_')
+        if key not in ('CONTENT_TYPE', 'CONTENT_LENGTH'):
+            environ[f'HTTP_{key}'] = value
+
+    def start_response(status, headers, exc_info=None):
+        return Response('', status=status, headers=headers)
+
+    return app(environ, start_response)
 
 # For local development
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=int(os.environ.get('PORT', 5000))) 
+    app.run(debug=True, host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
