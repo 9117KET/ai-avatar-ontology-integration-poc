@@ -4,9 +4,8 @@
  * This module handles:
  * - User interaction with the chat interface
  * - Communication with the backend API
- * - Rendering tutor responses
- * - Visualizing the student model data
- * - Updating the UI based on learning progress
+ * - Rendering tutor responses with physics-optimized formatting
+ * - Theme switching and UI responsiveness
  */
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -142,22 +141,81 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const message = document.createElement("div");
       message.className = "message";
-      message.innerHTML = `<p>${this.formatMessage(content)}</p>`;
+      
+      // Apply our enhanced formatting
+      message.innerHTML = this.formatMessage(content);
+      
+      // Add special treatment for tutor messages with physics content
+      if (type === "tutor") {
+        this.processMathAndPhysics(message);
+      }
 
       messageDiv.appendChild(type === "user" ? message : avatar);
       messageDiv.appendChild(type === "user" ? avatar : message);
 
       chatContainer.appendChild(messageDiv);
-      chatContainer.scrollTop = chatContainer.scrollHeight;
+      
+      // Smooth scroll to bottom with animation
+      setTimeout(() => {
+        chatContainer.scrollTo({
+          top: chatContainer.scrollHeight,
+          behavior: 'smooth'
+        });
+      }, 50);
+    },
+    
+    processMathAndPhysics(messageElement) {
+      // This function could be expanded in the future to add interactivity 
+      // to physics formulas, like showing explanations on hover
+      
+      // Find all formula elements
+      const formulas = messageElement.querySelectorAll('.formula');
+      formulas.forEach(formula => {
+        // Add any special processing for formulas here
+        formula.title = "Physics Formula";
+      });
+      
+      // Process physics terms
+      const terms = messageElement.querySelectorAll('.physics-term');
+      terms.forEach(term => {
+        term.title = "Important Physics Concept";
+      });
     },
 
     formatMessage(content) {
-      // Convert Markdown-like syntax to HTML
-      return content
+      // Convert Markdown-like syntax to HTML with physics enhancements
+      let formatted = content
+        // Basic Markdown
         .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Bold
-        .replace(/\*(.*?)\*/g, '<em>$1</em>')         // Italic
-        .replace(/\n/g, '<br>')                      // Line breaks
-        .replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>'); // Code blocks
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')            // Italic
+        .replace(/\n\n/g, '</p><p>')                    // Paragraphs
+        .replace(/\n/g, '<br>')                         // Line breaks
+        
+        // Physics-specific formatting
+        .replace(/\$([^$]+)\$/g, '<span class="formula">$1</span>')  // Inline formulas
+        .replace(/\{\{([^}]+)\}\}/g, '<span class="physics-term">$1</span>') // Physics terms
+        
+        // Lists
+        .replace(/^\s*-(.*)/gm, '<li>$1</li>')           // Unordered lists
+        .replace(/<\/li>\s*<li>/g, '</li><li>')         // Fix adjacent list items
+        
+        // Code blocks with syntax highlighting hint
+        .replace(/```([a-z]*)\n([\s\S]*?)```/g, function(match, lang, code) {
+          return `<pre><code class="${lang}">${code.trim()}</code></pre>`;
+        })
+        
+        // Inline code
+        .replace(/`([^`]+)`/g, '<code>$1</code>');
+      
+      // Wrap in paragraph if not already wrapped
+      if (!formatted.startsWith('<p>')) {
+        formatted = '<p>' + formatted;
+      }
+      if (!formatted.endsWith('</p>')) {
+        formatted = formatted + '</p>';
+      }
+      
+      return formatted;
     },
   };
 
@@ -181,6 +239,22 @@ document.addEventListener("DOMContentLoaded", () => {
       e.preventDefault();
       sendButton.click();
     }
+  });
+  
+  // Set up suggested question buttons
+  const suggestionButtons = document.querySelectorAll('.suggestion-btn');
+  suggestionButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      const question = button.textContent.trim();
+      questionInput.value = question;
+      
+      // Briefly highlight the input to show it's been populated
+      questionInput.classList.add('bg-blue-50', 'dark:bg-blue-900/20');
+      setTimeout(() => {
+        questionInput.classList.remove('bg-blue-50', 'dark:bg-blue-900/20');
+        sendButton.click(); // Automatically send the suggested question
+      }, 200);
+    });
   });
 
   // Initialize chat

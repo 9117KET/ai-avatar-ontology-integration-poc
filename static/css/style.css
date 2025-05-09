@@ -121,64 +121,44 @@ body {
   background-color: #2563eb;
 }
 
-/* Knowledge Level Items */
-.knowledge-item {
-  background-color: #ffffff;
-  border-radius: 0.5rem;
-  padding: 1rem;
-  transition: all var(--transition-speed) ease;
+/* Chat-focused UI elements */
+.welcome-message {
+  animation: fadeIn 0.5s ease-out;
 }
 
-.dark .knowledge-item {
-  background-color: #1f2937;
+/* Enhanced Chat Focus - Message Formatting */
+.message p {
+  margin-bottom: 0.75rem;
 }
 
-.knowledge-item:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
-    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+.message p:last-child {
+  margin-bottom: 0;
 }
 
-/* Progress Bars */
-.progress-bar {
-  height: 6px;
-  border-radius: 3px;
-  background-color: #e5e7eb;
-  overflow: hidden;
+.message ul, .message ol {
+  margin-left: 1.5rem;
+  margin-bottom: 0.75rem;
 }
 
-.progress-bar-fill {
-  height: 100%;
-  background-color: #3b82f6;
-  transition: width 0.5s ease;
+.message strong {
+  font-weight: 600;
 }
 
-.dark .progress-bar {
-  background-color: #374151;
+.message em {
+  font-style: italic;
 }
 
-/* Concept Tags */
-.concept-tag {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.25rem 0.75rem;
-  border-radius: 9999px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  background-color: #e5e7eb;
-  color: #374151;
-  margin: 0.25rem;
-  transition: all var(--transition-speed) ease;
+/* Make code blocks and formulas stand out */
+.message code {
+  background-color: rgba(0, 0, 0, 0.05);
+  padding: 0.1rem 0.3rem;
+  border-radius: 0.25rem;
+  font-family: monospace;
+  font-size: 0.9em;
 }
 
-.dark .concept-tag {
-  background-color: #374151;
-  color: #e5e7eb;
-}
-
-.concept-tag:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+.dark .message code {
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
 /* Animations */
@@ -226,6 +206,31 @@ body {
   }
 }
 
+/* Physics Content Styling */
+.message .formula {
+  display: inline-block;
+  background-color: rgba(59, 130, 246, 0.1);
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  margin: 0.5rem 0;
+  font-family: monospace;
+  font-weight: 500;
+}
+
+.dark .message .formula {
+  background-color: rgba(59, 130, 246, 0.2);
+}
+
+/* Highlight important physics terms */
+.message .physics-term {
+  font-weight: 600;
+  color: #3b82f6;
+}
+
+.dark .message .physics-term {
+  color: #60a5fa;
+}
+
 /* Responsive Design */
 @media (max-width: 640px) {
   :root {
@@ -237,9 +242,8 @@ body {
   .message {
     padding: 0.5rem 0.75rem;
   }
-
-  .concept-tag {
-    padding: 0.25rem 0.5rem;
-    font-size: 0.75rem;
+  
+  .chat-container {
+    height: calc(var(--chat-height) - 50px);
   }
 }

@@ -3,12 +3,12 @@
   Main frontend interface for the Physics Tutor application.
   
   This HTML file provides the UI for:
-  - The chat interface between student and tutor
-  - Display of the student's learning progress
-  - Visual feedback on knowledge levels
+  - An intuitive chat interface between student and AI tutor
+  - Enhanced display of physics formulas and concepts
+  - Responsive design with dark/light mode support
   
   It communicates with the backend API to handle questions and
-  retrieve the student model data.
+  deliver ontology-powered physics tutoring.
 -->
 <html lang="en">
   <head>
@@ -82,9 +82,16 @@
                     </div>
                     <div class="message">
                       <p class="text-gray-800 dark:text-gray-200">
-                        Welcome! I'm your AI Physics Tutor. I'm here to help you
-                        understand physics concepts. What would you like to
-                        learn about today?
+                        Welcome! I'm your AI Physics Tutor powered by an extensive physics ontology. I can help you understand concepts like:
+                      </p>
+                      <ul class="text-gray-800 dark:text-gray-200 list-disc ml-6 mt-2">
+                        <li>Newton's laws of motion</li>
+                        <li>Forces and interactions</li>
+                        <li>Energy and work</li>
+                        <li>And many other physics topics</li>
+                      </ul>
+                      <p class="text-gray-800 dark:text-gray-200 mt-2">
+                        What would you like to learn about today?
                       </p>
                     </div>
                   </div>
@@ -93,6 +100,23 @@
 
               <!-- Input Area -->
               <div class="border-t border-gray-200 dark:border-gray-700 p-4">
+                <!-- Suggested Questions -->
+                <div class="mb-3">
+                  <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">Try asking:</p>
+                  <div class="flex flex-wrap gap-2">
+                    <button class="suggestion-btn text-xs bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/30 dark:hover:bg-blue-800/50 text-blue-600 dark:text-blue-400 px-3 py-1 rounded-full transition-colors">
+                      What is Newton's First Law?
+                    </button>
+                    <button class="suggestion-btn text-xs bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/30 dark:hover:bg-blue-800/50 text-blue-600 dark:text-blue-400 px-3 py-1 rounded-full transition-colors">
+                      Explain the concept of force
+                    </button>
+                    <button class="suggestion-btn text-xs bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/30 dark:hover:bg-blue-800/50 text-blue-600 dark:text-blue-400 px-3 py-1 rounded-full transition-colors">
+                      How do I calculate kinetic energy?
+                    </button>
+                  </div>
+                </div>
+                
+                <!-- Question Input -->
                 <div class="flex items-center space-x-2">
                   <input
                     type="text"
