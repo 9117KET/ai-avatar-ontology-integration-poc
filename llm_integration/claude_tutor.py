@@ -243,6 +243,9 @@ class ClaudeTutor:
         A synchronous implementation for calling Claude API.
         This implementation ensures compatibility with Flask.
         
+        This method enhances the user's question with ontology-based context
+        and the student model state to provide accurate, personalized responses.
+        
         Args:
             user_question: The question from the user to be answered by the tutor
             
@@ -252,19 +255,39 @@ class ClaudeTutor:
         logger.debug(f"Processing question synchronously: {user_question}")
         
         try:
-            # Create a message with Claude
+            # Extract relevant context from the ontology based on the question
+            context_text, concepts_covered = self._get_relevant_context(user_question)
+            logger.debug(f"Extracted context: {context_text[:100]}...")
+            logger.debug(f"Concepts covered: {concepts_covered}")
+            
+            # Update the student model with newly exposed concepts
+            for concept in concepts_covered:
+                self.student_model.expose_concept(concept)
+            
+            # Adapt the context based on the student's knowledge level
+            adapted_context = self._adapt_context_to_student(context_text, concepts_covered)
+            logger.debug(f"Adapted context: {adapted_context[:100]}...")
+            
+            # Prepare the enhanced prompt with system prompt, context, and user question
+            enhanced_prompt = f"{self.system_prompt}\n\nRELEVANT CONTEXT:\n{adapted_context}\n\nUSER QUESTION: {user_question}\n\nPlease answer the question accurately using the provided context and knowledge base. Only use information from the context and general physics knowledge. Do not hallucinate or make up information not supported by the context."
+            
+            # Create a message with Claude using the enhanced prompt
             response = self.client.messages.create(
                 model="claude-3-opus-20240229",
                 max_tokens=1024,
                 messages=[{
                     "role": "user",
-                    "content": user_question
+                    "content": enhanced_prompt
                 }]
             )
             
             # Extract and return the response text
             response_text = response.content[0].text
             logger.debug(f"Generated response: {response_text[:100]}...")
+            
+            # Update student model based on the interaction
+            # In a more advanced implementation, we could analyze the response
+            # to determine which concepts the student understood
             
             return response_text
             
