@@ -11,9 +11,10 @@ This module serves as the central component that:
 
 import os
 import logging
-from typing import List, Dict, Optional, Set
+import certifi
+from typing import List, Dict, Optional
 from dotenv import load_dotenv
-from anthropic import AsyncAnthropic
+from anthropic import Anthropic
 from owlready2 import get_ontology, World
 
 # Import the StudentModel
@@ -62,15 +63,21 @@ class ClaudeTutor:
             if not self.api_key.startswith("sk-ant-"):
                 logger.error(f"API key appears to be in wrong format. Should start with 'sk-ant-'")
                 raise ValueError("Invalid API key format")
-                
-            # Create the client with explicit timeout settings
-            self.client = AsyncAnthropic(
-                api_key=self.api_key,
-                timeout=60.0  # Increase timeout to avoid connection issues
+            
+            # Set SSL certificate path environment variables
+            cert_path = certifi.where()
+            os.environ['SSL_CERT_FILE'] = cert_path
+            os.environ['REQUESTS_CA_BUNDLE'] = cert_path
+            os.environ['CURL_CA_BUNDLE'] = cert_path
+            logger.debug(f"SSL certificate path set to: {cert_path}")
+            
+            # Create the client with the latest Anthropic API
+            self.client = Anthropic(
+                api_key=self.api_key
             )
             logger.debug("Anthropic client initialized successfully")
         except ImportError as e:
-            logger.error(f"Failed to import Anthropic library: {e}")
+            logger.error(f"Failed to import required library: {e}")
             raise
         except Exception as e:
             logger.error(f"Failed to initialize Anthropic client: {e}")
@@ -204,70 +211,65 @@ class ClaudeTutor:
             return [app.hasDescription[0] for app in concept.hasApplication]
         return []
     
-    async def tutor(self, user_question: str) -> str:
+    async def ask_question(self, question: str) -> str:
         """
         Main tutoring method that processes user questions and provides adaptive responses.
         Updates the student model based on the interaction.
         """
-        logger.debug(f"Processing question: {user_question}")
+        logger.debug(f"Processing question: {question}")
         
-        # Get relevant context from the ontology
-        context, concepts_covered = self._get_relevant_context(user_question)
-        logger.debug(f"Retrieved context: {context}")
-        logger.debug(f"Concepts covered: {concepts_covered}")
-        
-        # Adapt context based on student model
-        adapted_context = self._adapt_context_to_student(context, concepts_covered)
-        logger.debug(f"Adapted context: {adapted_context}")
-        
-        # Create the message for Claude
-        message = f"""Context from knowledge base:
-{adapted_context}
-
-User question: {user_question}
-
-Please provide a helpful response based on the knowledge base and your understanding of physics."""
-        
-        logger.debug("Preparing API call to Claude")
         try:
-            # Get response from Claude
-            logger.debug("Creating message with Claude API...")
-            create_message = self.client.messages.create(
+            # Create message with Claude
+            message = await self.client.messages.create(
                 model="claude-3-opus-20240229",
-                max_tokens=1000,
-                system=self.system_prompt,
-                messages=[
-                    {"role": "user", "content": message}
-                ]
+                max_tokens=1024,
+                messages=[{
+                    "role": "user",
+                    "content": question
+                }]
             )
             
-            # Check if create_message is awaitable
-            if hasattr(create_message, '__await__'):
-                logger.debug("Message creation is awaitable, awaiting response...")
-                response = await create_message
-            else:
-                logger.debug("Message creation is not awaitable, using synchronous response")
-                response = create_message
-                
-            logger.debug("Successfully received response from Claude API")
-            logger.debug(f"Response type: {type(response)}")
-            logger.debug(f"Response content type: {type(response.content)}")
-            logger.debug(f"Response content: {response.content}")
+            # Extract and return the response
+            response = message.content[0].text
+            logger.debug(f"Generated response: {response[:100]}...")
+            return response
             
+        except Exception as e:
+            logger.error(f"Error generating response: {e}")
+            raise
+    
+    def tutor_sync(self, user_question: str) -> str:
+        """
+        A synchronous implementation for calling Claude API.
+        This implementation ensures compatibility with Flask.
+        
+        Args:
+            user_question: The question from the user to be answered by the tutor
+            
+        Returns:
+            The response text from Claude
+        """
+        logger.debug(f"Processing question synchronously: {user_question}")
+        
+        try:
+            # Create a message with Claude
+            response = self.client.messages.create(
+                model="claude-3-opus-20240229",
+                max_tokens=1024,
+                messages=[{
+                    "role": "user",
+                    "content": user_question
+                }]
+            )
+            
+            # Extract and return the response text
             response_text = response.content[0].text
-            
-            # Update student model with this interaction
-            self.student_model.add_interaction(
-                question=user_question,
-                response=response_text,
-                concepts=concepts_covered
-            )
-            logger.debug(f"Updated student model with interaction covering concepts: {concepts_covered}")
+            logger.debug(f"Generated response: {response_text[:100]}...")
             
             return response_text
+            
         except Exception as e:
-            logger.error(f"Error calling Claude API: {type(e).__name__}: {str(e)}")
-            logger.error(f"Error details: {e.__dict__}")
+            logger.error(f"Error in synchronous Claude API call: {type(e).__name__}: {str(e)}")
             raise
     
     def _get_relevant_context(self, question: str) -> tuple[str, List[str]]:

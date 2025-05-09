@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Physics Tutor - Ontology-Enhanced AI</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f5f7fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .chat-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-top: 50px;
+        }
+        .chat-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .chat-messages {
+            height: 400px;
+            overflow-y: auto;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .message {
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            max-width: 80%;
+        }
+        .user-message {
+            background-color: #007bff;
+            color: white;
+            margin-left: auto;
+        }
+        .ai-message {
+            background-color: #e9ecef;
+            color: #212529;
+        }
+        .loader {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .spinner-border {
+            width: 2rem;
+            height: 2rem;
+        }
+        .avatar-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="chat-container">
+            <div class="chat-header">
+                <h1>Physics Tutor</h1>
+                <p class="text-muted">Ontology-Enhanced AI Assistant</p>
+            </div>
+            
+            <div class="avatar-container">
+                <img src="https://img.freepik.com/free-vector/cute-robot-teacher-cartoon-character_138676-2739.jpg" alt="Tutor Avatar" class="avatar">
+            </div>
+            
+            <div class="chat-messages" id="chat-messages">
+                <div class="message ai-message">
+                    Hello! I'm your physics tutor powered by ontology-enhanced AI. I can help you understand physics concepts, especially Newton's laws and related topics. What would you like to learn about today?
+                </div>
+            </div>
+            
+            <div class="loader" id="loader">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p>Thinking...</p>
+            </div>
+            
+            <form id="query-form" class="mb-3">
+                <div class="input-group">
+                    <input type="text" id="user-query" class="form-control" placeholder="Ask me about physics concepts..." required>
+                    <button type="submit" class="btn btn-primary">Send</button>
+                </div>
+            </form>
+            
+            <div class="alert alert-info" role="alert">
+                <h5>Try asking about:</h5>
+                <ul>
+                    <li>What is Newton's First Law?</li>
+                    <li>How do force, mass, and acceleration relate to each other?</li>
+                    <li>Can you explain inertia with an example?</li>
+                    <li>What units are used to measure force?</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.getElementById('query-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const userQuery = document.getElementById('user-query').value.trim();
+            if (!userQuery) return;
+            
+            // Add user message to chat
+            const chatMessages = document.getElementById('chat-messages');
+            const userMessage = document.createElement('div');
+            userMessage.classList.add('message', 'user-message');
+            userMessage.textContent = userQuery;
+            chatMessages.appendChild(userMessage);
+            
+            // Clear input
+            document.getElementById('user-query').value = '';
+            
+            // Show loader
+            document.getElementById('loader').style.display = 'block';
+            
+            // Scroll to bottom
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            try {
+                // Send query to backend
+                const response = await fetch('/query', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ query: userQuery }),
+                });
+                
+                const data = await response.json();
+                
+                // Add AI response to chat
+                const aiMessage = document.createElement('div');
+                aiMessage.classList.add('message', 'ai-message');
+                aiMessage.textContent = data.response;
+                chatMessages.appendChild(aiMessage);
+                
+            } catch (error) {
+                console.error('Error:', error);
+                
+                // Add error message
+                const errorMessage = document.createElement('div');
+                errorMessage.classList.add('message', 'ai-message');
+                errorMessage.textContent = 'Sorry, there was an error processing your request. Please try again.';
+                chatMessages.appendChild(errorMessage);
+            } finally {
+                // Hide loader
+                document.getElementById('loader').style.display = 'none';
+                
+                // Scroll to bottom
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+        });
+    </script>
+</body>
+</html>

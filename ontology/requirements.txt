@@ -1,0 +1,4 @@
+flask==2.2.3
+python-dotenv==1.0.0
+owlready2==0.40
+anthropic==0.5.0
