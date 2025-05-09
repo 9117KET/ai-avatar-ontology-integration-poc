@@ -16,10 +16,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const sendButton = document.getElementById("sendButton");
   const loadingOverlay = document.getElementById("loadingOverlay");
   const themeToggle = document.getElementById("themeToggle");
-  const exposedConcepts = document.getElementById("exposedConcepts");
-  const knowledgeLevels = document.getElementById("knowledgeLevels");
-  const progressBar = document.getElementById("progressBar");
-  const overallProgress = document.getElementById("overallProgress");
 
   // Generate a session ID for this conversation
   const sessionId = "session_" + Math.random().toString(36).substring(2, 15);
@@ -99,30 +95,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       return response.json();
     },
-
-    async getStudentModel() {
-      const response = await fetch(`/api/student_model/${sessionId}`);
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to fetch student model");
-      }
-
-      return response.json();
-    },
-
-    async getLearningPath(targetConcept) {
-      const response = await fetch(
-        `/api/learning_path/${sessionId}/${encodeURIComponent(targetConcept)}`
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to fetch learning path");
-      }
-
-      return response.json();
-    },
   };
 
   // Chat Management
@@ -139,11 +111,6 @@ document.addEventListener("DOMContentLoaded", () => {
         // Get tutor's response
         const response = await api.fetchTutorResponse(message);
         this.addMessage(response.response, "tutor");
-
-        // Update student model visualization
-        if (response.student_model) {
-          this.updateStudentModel(response.student_model);
-        }
       } catch (error) {
         console.error("Error:", error);
         this.addMessage(
@@ -153,26 +120,6 @@ document.addEventListener("DOMContentLoaded", () => {
       } finally {
         loadingOverlay.classList.add("hidden");
         loadingOverlay.classList.remove("flex");
-      }
-    },
-
-    updateStudentModel(studentModel) {
-      // Update exposed concepts
-      if (studentModel.exposed_concepts) {
-        this.updateConcepts(studentModel.exposed_concepts);
-      }
-
-      // Update knowledge levels
-      if (studentModel.knowledge_level) {
-        this.updateKnowledgeLevels(studentModel.knowledge_level);
-      }
-
-      // Calculate and update overall progress
-      if (studentModel.understood_concepts && studentModel.exposed_concepts) {
-        const progress =
-          studentModel.understood_concepts.length /
-          Math.max(studentModel.exposed_concepts.length, 1);
-        this.updateProgress(progress);
       }
     },
 
@@ -205,51 +152,12 @@ document.addEventListener("DOMContentLoaded", () => {
     },
 
     formatMessage(content) {
-      // Convert markdown-style code blocks to HTML
+      // Convert Markdown-like syntax to HTML
       return content
-        .replace(/`([^`]+)`/g, "<code>$1</code>")
-        .replace(/\n/g, "<br>")
-        .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
-        .replace(/\*([^*]+)\*/g, "<em>$1</em>");
-    },
-
-    updateProgress(progress) {
-      const percentage = Math.round(progress * 100);
-      progressBar.style.width = `${percentage}%`;
-      overallProgress.textContent = `${percentage}%`;
-    },
-
-    updateConcepts(concepts) {
-      exposedConcepts.innerHTML = concepts
-        .map(
-          (concept) => `
-        <div class="concept-tag">
-          <span class="material-icons text-sm mr-1">check_circle</span>
-          ${concept}
-        </div>
-      `
-        )
-        .join("");
-    },
-
-    updateKnowledgeLevels(levels) {
-      knowledgeLevels.innerHTML = Object.entries(levels)
-        .map(
-          ([topic, level]) => `
-        <div class="knowledge-item">
-          <div class="flex justify-between items-center mb-2">
-            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">${topic}</span>
-            <span class="text-sm text-blue-600 dark:text-blue-400">${Math.round(
-              level * 100
-            )}%</span>
-          </div>
-          <div class="progress-bar">
-            <div class="progress-bar-fill" style="width: ${level * 100}%"></div>
-          </div>
-        </div>
-      `
-        )
-        .join("");
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Bold
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')         // Italic
+        .replace(/\n/g, '<br>')                      // Line breaks
+        .replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>'); // Code blocks
     },
   };
 
@@ -275,11 +183,5 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Initialize with example knowledge levels
-  chat.updateKnowledgeLevels({
-    Mechanics: 0.7,
-    Thermodynamics: 0.4,
-    Electromagnetism: 0.2,
-    "Quantum Physics": 0.1,
-  });
+  // Initialize chat
 });

@@ -101,53 +101,13 @@ def ask_tutor():
         # Get the tutor's response
         response = tutor.tutor_sync(question)
         
-        # Return the response with student model data
+        # Return the response
         return jsonify({
-            'response': response,
-            'student_model': {
-                'exposed_concepts': list(tutor.student_model.exposed_concepts),
-                'understood_concepts': list(tutor.student_model.understood_concepts),
-                'knowledge_level': tutor.student_model.knowledge_level,
-                'misconceptions': tutor.student_model.misconceptions,
-            }
+            'response': response
         })
     
     except Exception as e:
         logger.error(f"Error processing question: {e}")
-        return jsonify({'error': 'Internal server error'}), 500
-
-@app.route('/api/student_model/<session_id>', methods=['GET'])
-def get_student_model(session_id):
-    """API endpoint to get the current student model with security checks."""
-    if not validate_session_id(session_id):
-        return jsonify({'error': 'Invalid session ID'}), 400
-    
-    if session_id not in tutor_instances:
-        return jsonify({'error': 'Session not found'}), 404
-    
-    tutor = tutor_instances[session_id]
-    return jsonify({
-        'exposed_concepts': list(tutor.student_model.exposed_concepts),
-        'understood_concepts': list(tutor.student_model.understood_concepts),
-        'knowledge_level': tutor.student_model.knowledge_level,
-        'misconceptions': tutor.student_model.misconceptions,
-    })
-
-@app.route('/api/learning_path/<session_id>/<target>', methods=['GET'])
-def get_learning_path(session_id, target):
-    """API endpoint to get a learning path with security checks."""
-    if not validate_session_id(session_id):
-        return jsonify({'error': 'Invalid session ID'}), 400
-    
-    if session_id not in tutor_instances:
-        return jsonify({'error': 'Session not found'}), 404
-    
-    tutor = tutor_instances[session_id]
-    try:
-        learning_path = tutor.student_model.get_learning_path(target, tutor.concept_prerequisites)
-        return jsonify({'learning_path': learning_path})
-    except Exception as e:
-        logger.error(f"Error generating learning path: {e}")
         return jsonify({'error': 'Internal server error'}), 500
 
 if __name__ == '__main__':
