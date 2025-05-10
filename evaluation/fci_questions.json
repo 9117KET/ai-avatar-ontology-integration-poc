@@ -1,0 +1,42 @@
+[
+  {
+    "id": 1,
+    "question": "Two metal balls are the same size but one weighs twice as much as the other. The balls are dropped from the roof of a single story building at the same instant. The time it takes the balls to reach the ground will be:",
+    "options": "A) The heavier ball will reach the ground in about half the time of the lighter one.\nB) The heavier ball will reach the ground before the lighter one, but not in half the time.\nC) Both balls will reach the ground in about the same time.\nD) The lighter ball will reach the ground before the heavier one.\nE) Not enough information is provided to answer the question.",
+    "correct_answer": "C",
+    "concepts": ["gravity", "free fall", "Newtonian mechanics"],
+    "misconceptions": ["heavier objects fall faster", "confusing mass and weight"]
+  },
+  {
+    "id": 2,
+    "question": "A stone dropped from the roof of a building to the surface of Earth:",
+    "options": "A) Reaches a maximum speed quite soon after release and then falls at a constant speed thereafter.\nB) Speeds up as it falls because the gravitational attraction becomes considerably stronger as the stone gets closer to Earth.\nC) Speeds up because of an almost constant force of gravity acting on it.\nD) Falls because of the natural tendency of all objects to rest on the surface of Earth.\nE) Falls because of the combined effects of the force of gravity, air pressure, and the total mass of the object.",
+    "correct_answer": "C",
+    "concepts": ["gravitational acceleration", "constant force", "kinematics"],
+    "misconceptions": ["terminal velocity occurs quickly", "gravitational force increases significantly with small distance changes", "natural place physics"]
+  },
+  {
+    "id": 3,
+    "question": "A truck collides head-on with a car that has half the mass of the truck. During the collision:",
+    "options": "A) The truck exerts a greater amount of force on the car than the car exerts on the truck.\nB) The car exerts a greater amount of force on the truck than the truck exerts on the car.\nC) Neither exerts a force on the other, the car gets smashed simply because it's in the way of the truck.\nD) The truck exerts a force on the car but the car doesn't exert a force on the truck.\nE) The truck exerts the same amount of force on the car as the car exerts on the truck.",
+    "correct_answer": "E",
+    "concepts": ["Newton's third law", "conservation of momentum", "action-reaction pairs"],
+    "misconceptions": ["larger mass implies larger force", "passive objects don't exert force", "confusing mass and force"]
+  },
+  {
+    "id": 4,
+    "question": "A ball is shot from a cannon horizontally from a cliff. Which of the following paths most closely resembles the trajectory of the ball?",
+    "options": "A) [Straight horizontal line then vertical drop]\nB) [Curved parabolic path]\nC) [Straight diagonal line]\nD) [Curved path that becomes vertical]\nE) [Horizontal then diagonal path]",
+    "correct_answer": "B",
+    "concepts": ["projectile motion", "independence of horizontal and vertical motion", "parabolic trajectory"],
+    "misconceptions": ["path follows direction of initial velocity", "gravity acts after horizontal motion completes", "objects follow straight-line paths"]
+  },
+  {
+    "id": 5,
+    "question": "A book is at rest on a table. Which of the following force pairs are action-reaction pairs according to Newton's third law?",
+    "options": "A) The weight of the book and the normal force of the table on the book.\nB) The force of the book pushing down on the table and the force of the table pushing up on the book.\nC) The weight of the book and the force of the book pushing down on the table.\nD) The weight of the book and the gravitational force of the book on Earth.\nE) None of the above.",
+    "correct_answer": "D",
+    "concepts": ["Newton's third law", "action-reaction pairs", "normal force", "gravitational force"],
+    "misconceptions": ["normal force is reaction to weight", "confusing equilibrium pairs with action-reaction pairs"]
+  }
+]
