@@ -6,9 +6,6 @@ This Flask application serves as the backend for the AI Physics Tutor, handling:
 - User session management with security features
 - Rate limiting and input validation
 - Interaction with the ontology-based knowledge system
-
-The application has been simplified to focus on core chat functionality,
-removing learning progress tracking components.
 """
 
 import os

@@ -1,6 +1,6 @@
 # LLM Integration for Physics Tutor
 
-This module handles the integration between the physics knowledge ontology and the Claude 3 LLM to create an adaptive tutoring experience.
+This module handles the integration between the physics knowledge ontology and the Claude 3 LLM to create an enhanced physics tutoring experience.
 
 ## Components
 
@@ -8,106 +8,92 @@ This module handles the integration between the physics knowledge ontology and t
 
 The `ClaudeTutor` class is the main component that:
 
-- Loads the physics ontology
+- Loads the physics ontology for structured knowledge
 - Communicates with Claude 3 through the Anthropic API
-- Extracts relevant context based on student questions
-- Adapts responses based on the student's knowledge level
+- Provides accurate physics explanations with reduced hallucinations
+- Enhances responses with proper physics terminology and formula formatting
 
 ### StudentModel
 
-The `StudentModel` class tracks a student's knowledge state and learning progress over time. It maintains:
+The `StudentModel` class provides a simplified tracking of student interactions. It maintains:
 
-- **Exposed Concepts**: Topics the student has encountered during tutoring sessions
-- **Understood Concepts**: Concepts the student has demonstrated understanding of
-- **Knowledge Levels**: Numerical scores (0.0-1.0) representing mastery level for each concept
-- **Misconceptions**: Specific misunderstandings the student has shown about concepts
-- **Interaction History**: Record of all questions and responses
-- **Quiz Results**: Results of assessments to gauge understanding
+- **Exposed Concepts**: Physics topics the student has encountered during tutoring sessions
+- **Simple Session History**: Basic tracking of conversation context
 
-The student model is used to adapt tutoring in several ways:
+This streamlined model focuses on the core functionality needed for effective physics tutoring without the overhead of complex progress tracking. The system:
 
-1. **Personalized Context**: The tutor enhances responses with information about which concepts the student already knows and which need review
-2. **Knowledge Gap Identification**: Highlights areas that require reinforcement
-3. **Prerequisite Tracking**: Ensures new concepts are introduced only when prerequisites are understood
-4. **Learning Path Generation**: Creates customized learning sequences to reach target concepts
+1. **Tracks Concept Exposure**: Records which physics concepts a student has been exposed to
+2. **Identifies Ready Concepts**: Determines which concepts a student is ready to learn based on prerequisites
+3. **Provides Context**: Gives the tutor awareness of previously discussed topics
 
 ## Usage
 
 ### Basic Tutoring
 
 ```python
-import asyncio
-from claude_tutor import ClaudeTutor
+from llm_integration.claude_tutor import ClaudeTutor
 
-async def main():
-    # Create a tutor for a specific student
-    tutor = ClaudeTutor(student_id="student_123")
+# Create a tutor for a specific student
+tutor = ClaudeTutor(student_id="student_123")
 
-    # Ask a question
-    response = await tutor.tutor("Can you explain Newton's First Law?")
-    print(response)
-
-if __name__ == "__main__":
-    asyncio.run(main())
+# Ask a question using the synchronous interface
+response = tutor.tutor_sync("Can you explain Newton's First Law?")
+print(response)
 ```
 
-### Advanced Usage with Student Model
+### Integration with Flask Application
 
 ```python
-import asyncio
-from claude_tutor import ClaudeTutor
+from llm_integration.claude_tutor import ClaudeTutor, get_tutor
 
-async def main():
-    # Create a tutor for a specific student
-    tutor = ClaudeTutor(student_id="student_123")
-
-    # Get a physics explanation
-    response = await tutor.tutor("Can you explain Newton's First Law?")
-    print(response)
-
-    # Record quiz results to update the student model
-    tutor.student_model.update_quiz_result(
-        concept="NewtonsFirstLaw",
-        correct=True,
-        confidence=0.8
-    )
-
-    # Record a misconception if detected
-    tutor.student_model.record_misconception(
-        concept="Acceleration",
-        misconception="Confuses acceleration with velocity"
-    )
-
-    # Get learning recommendations
-    knowledge_gaps = tutor.student_model.get_knowledge_gaps()
+# In a Flask route handler
+def ask_question():
+    # Get or create a tutor instance for this session
+    session_id = "user_session_123"
+    tutor = get_tutor(session_id)
+    
+    # Process the user's question
+    question = "What is conservation of momentum?"
+    response = tutor.tutor_sync(question)
+    
+    # The student model automatically tracks exposed physics concepts
+    exposed_concepts = tutor.student_model.exposed_concepts
+    
+    # Find concepts the student is ready to learn
     ready_concepts = tutor.student_model.get_ready_concepts(tutor.concept_prerequisites)
-
-    # Generate a personalized learning path
-    learning_path = tutor.student_model.get_learning_path(
-        target_concept="NewtonsThirdLaw",
-        concept_graph=tutor.concept_prerequisites
-    )
-
-if __name__ == "__main__":
-    asyncio.run(main())
+    
+    return response
 ```
 
 ## Testing
 
-Run the tests with pytest:
+Run the simplified test suite with Python's unittest framework:
 
 ```
-python -m pytest llm_integration/test_claude_tutor.py -v
-python -m pytest llm_integration/test_student_model.py -v
-python -m pytest llm_integration/test_claude_student_integration.py -v
+python -m unittest discover llm_integration/tests
 ```
 
-## Example
+## Technical Notes
 
-To see a full demonstration of the adaptive tutoring functionality, run:
+### Synchronous Implementation
 
+The tutoring system was migrated from an asynchronous implementation to a synchronous one for improved stability and simplicity. The `ClaudeTutor` class now provides:
+
+- `tutor_sync()` - A synchronous method for direct use in Flask routes
+- Static `get_tutor()` method to retrieve or create a tutor instance for a session
+
+### SSL Certificate Handling
+
+To resolve potential SSL certificate issues with the Anthropic API, the system now automatically configures SSL certificate paths using environment variables:
+
+```python
+import os
+import certifi
+
+os.environ['SSL_CERT_FILE'] = certifi.where()
+os.environ['REQUESTS_CA_BUNDLE'] = certifi.where()
 ```
-python llm_integration/example_with_student_model.py
-```
 
-This example simulates a tutoring session where the student's knowledge is tracked and the tutor adapts its responses accordingly.
+### Integration with AI Avatar
+
+This module provides the core AI tutoring capabilities that can be enhanced with an avatar interface for more engaging educational experiences.

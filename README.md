@@ -8,42 +8,44 @@ This project addresses the critical challenge of AI hallucination in educational
 
 - Domain-specific ontologies (OWL, RDF, SPARQL) for structured knowledge representation
 - Claude 3 LLM for natural language understanding and generation
-- Student modeling for personalized learning experiences
-- Avatar-based interface for enhanced engagement
+- Simplified student model for concept tracking
+- Intuitive, accessible chat interface for physics tutoring
 
 ## Project Structure
 
 ```
 .
-├── api/                    # API implementation
-│   ├── routes/            # Route definitions and handlers
-│   ├── utils/             # Utility functions
-│   ├── index.py           # Main API application
-│   └── vercel.py          # Vercel serverless handler
+├── llm_integration/       # LLM integration & simplified student model
+│   ├── claude_tutor.py   # Claude AI integration
+│   ├── student_model.py  # Simplified student model
+│   └── tests/            # Unit tests for components
 │
-├── docs/                  # Documentation (abstract, roadmap, UML, system design)
-├── llm_integration/       # LLM integration & student model ([see README](llm_integration/README.md))
 ├── ontology/              # Physics ontology schemas & validation
-├── static/                # Frontend assets (HTML, CSS, JS)
-├── app.py                 # Main application entry point
-├── requirements.txt       # Production dependencies
-├── dev-requirements.txt   # Development dependencies
-└── tests/                 # Test suite
+│   └── physics/          # Physics domain ontology files
+│
+├── static/                # Frontend assets
+│   ├── css/              # Styling for the chat interface
+│   ├── js/               # Client-side logic
+│   └── index.html        # Main application page
+│
+├── app.py                 # Flask application entry point
+├── requirements.txt       # Project dependencies
+└── .env                   # Environment variables configuration
 ```
 
 ## System Architecture
 
-- **Backend:** Quart (async Flask-compatible) server, modular API endpoints, JWT session management, integration with Claude 3 LLM and ontology modules.
-- **LLM Integration:** Adaptive tutoring logic, student model, context-aware answers ([see llm_integration/README.md](llm_integration/README.md)).
-- **Ontology:** Physics domain concepts, prerequisites, validation tests.
-- **Frontend:** Avatar-based web UI for interactive tutoring.
-- **Documentation:** Full docs and system architecture in `docs/`.
+- **Backend:** Flask server with robust error handling, JWT session management, and integration with Claude 3 LLM and ontology modules.
+- **LLM Integration:** Streamlined tutoring logic focusing on physics content, simplified student model for concept tracking.
+- **Ontology:** Physics domain concepts to provide structured knowledge for more accurate responses.
+- **Frontend:** Clean, accessible chat interface with support for physics formulas and suggested questions.
+- **Security:** Comprehensive security headers, proper CORS configuration, and SSL certificate handling.
 
 ## Requirements
 
 - Python 3.9+
 - [Anthropic Claude API key](https://console.anthropic.com/)
-- See `requirements.txt` and `dev-requirements.txt` for dependencies
+- See `requirements.txt` for dependencies
 
 ## Installation & Setup
 
@@ -51,88 +53,110 @@ This project addresses the critical challenge of AI hallucination in educational
 2. **Install dependencies:**
    ```bash
    pip install -r requirements.txt
-   # For development and testing
-   pip install -r dev-requirements.txt
    ```
 3. **Set up environment variables:**
-   ```bash
-   cp .env.example .env
-   # Edit .env and provide:
-   # - ANTHROPIC_API_KEY
-   # - JWT_SECRET
-   # - ALLOWED_ORIGINS
-   # (see .env.example for all options)
+   Create a `.env` file in the project root with the following variables:
    ```
-4. **Run the development server:**
+   # Required configuration
+   ANTHROPIC_API_KEY=your_anthropic_api_key_here
+   
+   # Security settings
+   JWT_SECRET=your_secure_random_string
+   JWT_ALGORITHM=HS256
+   
+   # CORS configuration (comma-separated list for multiple origins)
+   ALLOWED_ORIGINS=http://localhost:5000,https://yourdomain.com
+   
+   # Server configuration
+   HOST=0.0.0.0
+   PORT=5000
+   DEBUG=False
+   ```
+
+4. **Run the application:**
    ```bash
    python app.py
    ```
-   The app will be available at http://localhost:5000
+   The AI Physics Tutor will be available at http://localhost:5000
 
 ## Deployment
 
-### Vercel (Serverless)
-1. Install Vercel CLI:
-   ```bash
-   npm install -g vercel
-   ```
-2. Deploy:
-   ```bash
-   vercel
-   ```
-   See `vercel.json` for configuration.
+### Standard Web Server
 
-## Testing & Development
-- Run all tests:
+1. Set up a Python environment on your server
+2. Install dependencies with `pip install -r requirements.txt`
+3. Configure environment variables (especially the `ANTHROPIC_API_KEY`)
+4. Run with a WSGI server for production:
+   ```bash
+   # Using a production WSGI server
+   python -m waitress --port=5000 app:app
+   ```
+
+## Development & Troubleshooting
+
+- **SSL Certificate Issues**: If you encounter SSL connection errors with the Anthropic API, ensure you have the latest SSL certificate package installed:
   ```bash
-  pytest
-  ```
-- Format code:
-  ```bash
-  black .
-  ```
-- Lint code:
-  ```bash
-  flake8 .
-  ```
-- Type checking:
-  ```bash
-  mypy .
+  pip install --upgrade pip setuptools wheel
+  pip install --upgrade requests
   ```
 
-## Key Directories & Files
-- `api/` — Backend API implementation
-- `llm_integration/` — LLM and student model logic ([see README](llm_integration/README.md))
-- `ontology/` — OWL schemas and validation
-- `static/` — Frontend assets
-- `tests/` — Test suite
-- `.env.example` — Example environment config
-- `requirements.txt` — Main dependencies
-- `dev-requirements.txt` — Dev/test dependencies
+- **Running Tests**: You can run the simplified test suite with:
+  ```bash
+  pytest llm_integration/tests/
+  ```
+
+- **Debug Mode**: Set `DEBUG=True` in your `.env` file for more verbose logging and error messages
+
+## Key Files Overview
+
+### Backend (Python/Flask)
+- `app.py` — Flask server with API endpoints and main application logic
+- `llm_integration/claude_tutor.py` — Claude AI integration for physics tutoring
+- `llm_integration/student_model.py` — Simplified student concept tracking
+
+### Frontend
+- `static/index.html` — Main chat interface
+- `static/js/app.js` — Client-side logic for chat functionality
+- `static/css/style.css` — Styling for the physics tutor interface
+
+### Knowledge Base
+- `ontology/physics/` — OWL/RDF ontology files for physics domain knowledge
 
 ## Environment Variables
-- `ANTHROPIC_API_KEY` — Claude API authentication
-- `JWT_SECRET` — Session security
-- `ALLOWED_ORIGINS` — CORS configuration
-- `HOST`, `PORT`, `DEBUG` — Server config
-- See `.env.example` for all options
+- `ANTHROPIC_API_KEY` — Claude API authentication key
+- `JWT_SECRET` — Secret key for JWT token encryption
+- `JWT_ALGORITHM` — Algorithm used for JWT (default: HS256)
+- `ALLOWED_ORIGINS` — Comma-separated list of allowed origins for CORS
+- `HOST`, `PORT` — Server hosting configuration
+- `DEBUG` — Enable debug mode for development
 
 ## Research Contributions
-1. **Reduced Hallucination:** Integrates structured domain knowledge to reduce AI inaccuracies
-2. **Personalized Tutoring:** Adaptive responses based on student model
-3. **Scalable:** One-on-one tutoring at scale
-4. **Interactive:** Avatar-based interface for engagement
-5. **Knowledge Verification:** AI responses validated against ontology
+1. **Reduced Hallucination:** Integrates structured ontology-based domain knowledge to reduce AI inaccuracies
+2. **Focused Physics Tutoring:** Specialized responses for physics education
+3. **Scalable Chat Interface:** Simple, effective interface for physics learning
+4. **Knowledge Verification:** AI responses grounded in physics ontology
+5. **Formula and Concept Representation:** Enhanced display of mathematical formulas and physics concepts
 
-## Implementation Status
-- Core ontology integration and validation
-- Claude 3 API integration
-- Student model with learning path generation
-- API endpoints and avatar interface
-- Session management and interaction history
-- Voice synthesis integration
+## Current Implementation
+- Core physics ontology integration
+- Claude 3 AI integration with synchronous request handling
+- Simplified student model for concept tracking
+- Clean chat interface with support for physics formulas
+- Enhanced message formatting for physics content
+- Suggested questions for better user engagement
+- Comprehensive error handling and security measures
 
-## Getting Started (Quick Reference)
+## Technical Notes
+
+### Migration from Async to Sync
+The application was migrated from Quart (async Flask) to standard Flask for improved stability and simpler maintenance. This involved converting async route handlers to synchronous ones and implementing synchronous wrappers for asynchronous code.
+
+### SSL Certificate Configuration
+To resolve SSL certificate issues with the Anthropic client, the application uses SSL certificate management to properly set certificate paths via environment variables.
+
+### Web Server Deployment
+For production deployment, we recommend using a WSGI server like Waitress to serve the Flask application for better performance and reliability.
+
 ## Research Methodology
 
 The project follows a phased development approach:
@@ -148,7 +172,6 @@ The project follows a phased development approach:
 
    - Physics concepts, laws, and relationships
    - Prerequisites structures
-   - Examples and real-world applications
    - Context retrieval system
 
 3. **Student Model Implementation**

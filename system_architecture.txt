@@ -1,113 +1,124 @@
-# AI-Powered Tutoring System Architecture
+# AI Physics Tutor - System Architecture
 =======================================
 
 1. System Overview
 -----------------
-The system is an AI-powered tutoring platform that combines ontology-based knowledge representation with Large Language Model (LLM) integration to deliver personalized learning experiences. The architecture follows a modular, service-oriented design pattern with clear separation of concerns.
+The AI Physics Tutor is a streamlined educational platform that combines ontology-based physics knowledge representation with the Claude 3 Large Language Model (LLM) to deliver accurate and helpful physics tutoring. The architecture follows a clean, modular design pattern with a focus on a simple, effective chat interface.
 
 2. Core Components
 -----------------
 2.1. Main Application Layer
     - Flask-based web application (app.py)
-    - Handles HTTP requests and routing
-    - Manages application state and session handling
-    - Coordinates communication between different components
+    - Synchronous HTTP request handling (migrated from Quart)
+    - Robust error handling and security features
+    - Enhanced security headers and SSL certificate management
+    - Session management with JWT tokens
 
 2.2. API Layer
-    - RESTful API endpoints (/api/*)
-    - Request/response handling
-    - Authentication and authorization
-    - Natural Language Processing integration
-    - Stateless design for scalability
+    - Streamlined RESTful endpoint (/api/ask)
+    - Comprehensive request validation
+    - Tiered error handling with specific status codes
+    - JSON response formatting
+    - Rate limiting for API protection
 
 2.3. LLM Integration Layer
-    - Claude AI Tutor implementation
-    - Student modeling and progress tracking
-    - Adaptive learning algorithms
-    - Conversation management
-    - Learning pattern analysis
+    - Claude 3 AI integration
+    - Simplified student model for concept tracking
+    - Synchronous conversation handling
+    - Physics-focused response formatting
+    - Ontology-enhanced context generation
 
-2.4. Ontology System
-    - Knowledge representation schemas
-    - Domain modeling
-    - Content organization
-    - Learning objective mapping
-    - Relationship management
+2.4. Physics Ontology System
+    - OWL/RDF knowledge representation
+    - Physics domain concept modeling
+    - Prerequisite relationships
+    - Core physics principles and formulas
+    - Concept hierarchies and relationships
 
 3. Data Flow Architecture
 ------------------------
 3.1. Client Request Flow
-    Client → API Gateway → Application Layer → LLM/Ontology Services → Response
+    Client → Flask Server → AI Tutor → Ontology Integration → Physics-Enhanced Response
 
-3.2. Learning Session Flow
-    1. Student initiates session
-    2. System loads student model
-    3. LLM processes input
-    4. Ontology provides context
-    5. System generates response
-    6. Updates student model
-    7. Returns personalized content
+3.2. Chat Session Flow
+    1. User submits physics question via chat interface
+    2. Server validates input and session parameters
+    3. System retrieves or creates student model instance
+    4. Claude 3 LLM processes question with ontology context
+    5. Ontology provides structured physics knowledge
+    6. System enhances the response with formula formatting
+    7. Student model records exposed concepts
+    8. Returns response with appropriate physics formatting
 
-4. Integration Points
--------------------
-4.1. LLM-Ontology Integration
-    - Knowledge base querying
-    - Context enhancement
-    - Dynamic content generation
-    - Learning path optimization
+4. Integration Components
+-----------------------
+4.1. Claude-Ontology Integration
+    - Physics concept disambiguation
+    - Formula verification and representation
+    - Context-aware physics explanations
+    - Retrieval of relevant physics principles
+    - Reduction of AI hallucinations
 
-4.2. API-LLM Integration
-    - Conversation handling
-    - Response processing
-    - Session management
-    - Error handling
+4.2. API-Frontend Integration
+    - Interactive chat interface
+    - Suggested physics questions
+    - Formula rendering and display
+    - Session persistence
+    - Comprehensive error handling
 
 5. Technical Stack
 ----------------
-- Backend: Python/Flask
-- AI: Claude LLM
-- Knowledge Base: Ontology-based system
-- API: RESTful architecture
-- Testing: pytest framework
-- Deployment: Vercel
+- Backend: Python/Flask (migrated from Quart)
+- AI: Claude 3 LLM via Anthropic API
+- Knowledge Base: Physics ontology (OWL/RDF)
+- Frontend: HTML5, CSS3, JavaScript
+- API: Simplified RESTful endpoint
+- Security: JWT, CORS, and comprehensive headers
+- Testing: Simplified pytest structure
 
 6. Security Architecture
 ----------------------
-- Authentication layer
-- Session management
-- API security
-- Data encryption
-- Access control
-- Privacy protection
+- JWT-based session management
+- Comprehensive security headers
+  - Content Security Policy (CSP)  
+  - X-Content-Type-Options
+  - X-Frame-Options
+  - X-XSS-Protection
+  - Referrer-Policy
+- CORS with explicit allowed origins
+- Rate limiting to prevent abuse
+- Input validation and sanitization
+- Secure SSL certificate handling
 
-7. Scalability Design
---------------------
-- Modular component design
-- Stateless API architecture
-- Cacheable responses
-- Asynchronous processing
-- Horizontal scaling capability
+7. Simplified Architecture
+------------------------
+- Streamlined component design
+- Focus on core tutoring functionality
+- Removal of complex learning progress tracking
+- Synchronous request handling for stability
+- Enhanced error handling and logging
 
 8. Monitoring and Logging
 ------------------------
-- System health monitoring
-- Performance metrics
-- Error tracking
-- Usage analytics
-- Learning progress tracking
+- Structured logging with Python logger
+- Detailed error tracking with context
+- Request validation feedback
+- API response monitoring
+- Start-up diagnostics and configuration checks
 
 9. Development and Deployment
 ---------------------------
-- Version control
-- CI/CD pipeline
-- Testing automation
-- Documentation
-- Deployment strategies
+- Git version control
+- Simplified testing strategy
+- Comprehensive documentation
+- Standard WSGI server deployment
+- Environment variable configuration
 
-10. Future Extensibility
------------------------
-- Plugin architecture
-- API versioning
-- Module independence
-- Interface standardization
-- Feature flagging capability 
+10. Future Enhancement Opportunities
+----------------------------------
+- Advanced formula rendering capabilities
+- Expanded physics ontology coverage
+- Interactive problem-solving features
+- Multi-language support
+- Integration with educational platforms
+- Integrating an AI avatar to enable more engaging interactions
