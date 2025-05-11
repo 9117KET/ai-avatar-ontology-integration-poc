@@ -45,9 +45,9 @@ def main():
     )
     
     parser.add_argument(
-        "--use-deployed-api",
+        "--disable-deployed-api",
         action="store_true",
-        help="Use the deployed API instead of simulated ontology"
+        help="Disable the deployed API and only use simulated ontology (default: deployed API is used with fallback)"
     )
     
     parser.add_argument(
@@ -79,7 +79,7 @@ def main():
         logger_runner.info("Initializing hallucination evaluator...")
         evaluator = HallucinationEvaluator(
             fci_data_path=args.fci_data,
-            use_deployed_api=args.use_deployed_api
+            use_deployed_api=not args.disable_deployed_api
         )
         
         # Limit questions if specified

@@ -21,22 +21,25 @@ logger = logging.getLogger("hallucination_evaluator")
 class HallucinationEvaluator:
     """Main class for evaluating hallucination rates in physics AI tutoring."""
     
-    def __init__(self, fci_data_path="fci_questions.json", use_deployed_api=False):
+    def __init__(self, fci_data_path="fci_questions.json", use_deployed_api=True):
         """
         Initialize the evaluator with FCI questions data.
         
         Args:
             fci_data_path: Path to the FCI questions JSON file
-            use_deployed_api: Whether to use the deployed API (True) or simulated ontology (False)
+            use_deployed_api: Whether to use the deployed API (True) or simulated ontology (False).
+                              Defaults to True to use the deployed API with fallback to simulation.
         """
         self.fci_data_path = fci_data_path
         self.use_deployed_api = use_deployed_api
         self.fci_questions = self._load_fci_questions()
         self.results = []
         self.analyzer = ResultsAnalyzer(self.fci_questions)
+        self.api_failures = 0
+        self.api_successes = 0
         
         logger.info(f"Initialized HallucinationEvaluator with {len(self.fci_questions)} FCI questions")
-        logger.info(f"Using deployed API: {self.use_deployed_api}")
+        logger.info(f"Using deployed API by default: {self.use_deployed_api} (with fallback to simulation if API fails)")
     
     def _load_fci_questions(self):
         """
@@ -52,7 +55,7 @@ class HallucinationEvaluator:
             logger.error(f"Failed to load FCI questions: {e}")
             raise
     
-    def query_ontology_model(self, prompt, session_id="eval_session", max_retries=1):
+    def query_ontology_model(self, prompt, session_id="eval_session", max_retries=2):
         """
         Query the ontology-enhanced model.
         
@@ -64,22 +67,38 @@ class HallucinationEvaluator:
         Returns:
             The model's response text
         """
-        # First try the actual deployed API if configured to do so
+        # Try the deployed API first unless explicitly disabled
         if self.use_deployed_api:
-            response = OntologyAPIClient.query_model(
-                prompt=prompt,
-                session_id=session_id,
-                max_retries=max_retries
-            )
+            try:
+                logger.info(f"Attempting to use deployed ontology API (session: {session_id})...")
+                response = OntologyAPIClient.query_model(
+                    prompt=prompt,
+                    session_id=session_id,
+                    max_retries=max_retries
+                )
+                
+                # If we got a response, count it as success and return it
+                if response:
+                    self.api_successes += 1
+                    logger.info(f"Successfully used deployed API (success rate: {self.api_successes}/{self.api_successes + self.api_failures})")
+                    return response
+                
+                # If no response but also no exception, log the specific failure
+                self.api_failures += 1
+                logger.warning(f"Deployed API returned no response (attempt failed: {self.api_failures} times)")
+                
+            except Exception as e:
+                # Count and log specific API failure with detailed error
+                self.api_failures += 1
+                logger.error(f"Deployed API error: {str(e)}")
+                logger.warning(f"API call failed {self.api_failures} times. Success rate: {self.api_successes}/{self.api_successes + self.api_failures}")
             
-            # If we got a response, return it
-            if response:
-                return response
-            
-            # Otherwise, fall back to simulated ontology
-            logger.warning("Deployed API failed, falling back to simulated ontology")
+            # In either error case, log the fallback and continue to simulation
+            logger.warning("Deployed ontology API unavailable, falling back to simulated ontology")
+        else:
+            logger.info("Deployed API use is disabled, using simulated ontology directly")
         
-        # Use simulated ontology model
+        # Use simulated ontology model as fallback
         return SimulatedOntologyModel.query(prompt, session_id)
     
     def query_baseline_model(self, prompt):
@@ -251,6 +270,22 @@ class HallucinationEvaluator:
         
         # Analyze results
         analysis_results = self.analyzer.analyze_results(results_df)
+        
+        # Log API usage statistics
+        if self.use_deployed_api:
+            total_attempts = self.api_successes + self.api_failures
+            if total_attempts > 0:
+                success_rate = (self.api_successes / total_attempts) * 100
+                logger.info(f"API Usage Stats - Success: {self.api_successes}, Failures: {self.api_failures}, Rate: {success_rate:.1f}%")
+                
+                # Add API statistics to analysis results
+                if analysis_results:
+                    analysis_results['api_stats'] = {
+                        'attempts': total_attempts,
+                        'successes': self.api_successes,
+                        'failures': self.api_failures,
+                        'success_rate': success_rate
+                    }
         
         logger.info("Evaluation pipeline completed successfully")
         

@@ -2,7 +2,7 @@
   "metrics": {
     "accuracy": {
       "baseline": 1.0,
-      "ontology": 1.0
+      "ontology": 0.0
     },
     "hallucination_rate": {
       "baseline": 0.0,
@@ -14,7 +14,10 @@
     }
   },
   "statistical_tests": {
-    "error": "float division by zero"
+    "p_value": NaN,
+    "effect_size": 0.0,
+    "is_significant": false,
+    "t_statistic": NaN
   },
   "exemplary_cases": []
 }
