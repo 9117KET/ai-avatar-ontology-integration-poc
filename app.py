@@ -131,7 +131,18 @@ def index():
     response.headers['X-Content-Type-Options'] = 'nosniff'  # Prevents MIME type sniffing
     response.headers['X-Frame-Options'] = 'DENY'  # Prevents clickjacking
     response.headers['X-XSS-Protection'] = '1; mode=block'  # Basic XSS protection
-    response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self' 'unsafe-inline' cdn.tailwindcss.com *.vercel.live vercel.live; style-src 'self' 'unsafe-inline' fonts.googleapis.com; font-src fonts.gstatic.com; img-src 'self' data:; connect-src 'self' *.vercel.app"  # CSP
+    # Comprehensive CSP header that allows necessary resources
+    csp_directives = [
+        "default-src 'self'",
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' cdn.tailwindcss.com *.vercel.live vercel.live",
+        "style-src 'self' 'unsafe-inline' fonts.googleapis.com cdn.tailwindcss.com",
+        "font-src 'self' fonts.gstatic.com",
+        "img-src 'self' data: blob:",
+        "connect-src 'self' *.vercel.app api2.amplitude.com o4505129952280576.ingest.sentry.io",
+        "frame-src 'self'",
+        "base-uri 'self'"
+    ]
+    response.headers['Content-Security-Policy'] = "; ".join(csp_directives)  # CSP
     response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'  # Limits referrer information
     
     return response
