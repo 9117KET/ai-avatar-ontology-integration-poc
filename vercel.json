@@ -2,7 +2,7 @@
   "version": 2,
   "builds": [
     { 
-      "src": "api/vercel.py", 
+      "src": "api/index.py", 
       "use": "@vercel/python",
       "config": {
         "maxLambdaSize": "15mb",
@@ -12,16 +12,16 @@
     { "src": "static/**", "use": "@vercel/static" }
   ],
   "routes": [
-    { "src": "/api/(.*)", "dest": "api/vercel.py" },
+    { "src": "/api/(.*)", "dest": "api/index.py" },
     { "src": "/static/(.*)", "dest": "/static/$1" },
     { "handle": "filesystem" },
-    { "src": "/.*", "dest": "api/vercel.py" }
+    { "src": "/.*", "dest": "api/index.py" }
   ],
   "env": {
     "PYTHONPATH": "."
   },
   "functions": {
-    "api/vercel.py": {
+    "api/index.py": {
       "memory": 1024,
       "maxDuration": 60
     }
