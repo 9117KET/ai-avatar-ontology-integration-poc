@@ -131,7 +131,7 @@ def index():
     response.headers['X-Content-Type-Options'] = 'nosniff'  # Prevents MIME type sniffing
     response.headers['X-Frame-Options'] = 'DENY'  # Prevents clickjacking
     response.headers['X-XSS-Protection'] = '1; mode=block'  # Basic XSS protection
-    response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self' cdn.tailwindcss.com; style-src 'self' 'unsafe-inline' fonts.googleapis.com; font-src fonts.gstatic.com; img-src 'self' data:"  # CSP
+    response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self' 'unsafe-inline' cdn.tailwindcss.com *.vercel.live vercel.live; style-src 'self' 'unsafe-inline' fonts.googleapis.com; font-src fonts.gstatic.com; img-src 'self' data:; connect-src 'self' *.vercel.app"  # CSP
     response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'  # Limits referrer information
     
     return response
