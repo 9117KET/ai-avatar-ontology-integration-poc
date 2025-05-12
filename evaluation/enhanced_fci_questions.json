@@ -1,0 +1,122 @@
+[
+  {
+    "id": 1,
+    "question": "Two metal balls are the same size but one weighs twice as much as the other. The balls are dropped from the roof of a single story building at the same instant. The time it takes the balls to reach the ground will be:",
+    "options": "A) The heavier ball will reach the ground in about half the time of the lighter one.\nB) The heavier ball will reach the ground before the lighter one, but not in half the time.\nC) Both balls will reach the ground in about the same time.\nD) The lighter ball will reach the ground before the heavier one.\nE) Not enough information is provided to answer the question.",
+    "correct_answer": "C",
+    "concepts": ["gravity", "free fall", "Newtonian mechanics"],
+    "misconceptions": ["heavier objects fall faster", "confusing mass and weight"]
+  },
+  {
+    "id": 2,
+    "question": "A stone dropped from the roof of a building to the surface of Earth:",
+    "options": "A) Reaches a maximum speed quite soon after release and then falls at a constant speed thereafter.\nB) Speeds up as it falls because the gravitational attraction becomes considerably stronger as the stone gets closer to Earth.\nC) Speeds up because of an almost constant force of gravity acting on it.\nD) Falls because of the natural tendency of all objects to rest on the surface of Earth.\nE) Falls because of the combined effects of the force of gravity, air pressure, and the total mass of the object.",
+    "correct_answer": "C",
+    "concepts": ["gravitational acceleration", "constant force", "kinematics"],
+    "misconceptions": ["terminal velocity occurs quickly", "gravitational force increases significantly with small distance changes", "natural place physics"]
+  },
+  {
+    "id": 3,
+    "question": "A truck collides head-on with a car that has half the mass of the truck. During the collision:",
+    "options": "A) The truck exerts a greater amount of force on the car than the car exerts on the truck.\nB) The car exerts a greater amount of force on the truck than the truck exerts on the car.\nC) Neither exerts a force on the other, the car gets smashed simply because it's in the way of the truck.\nD) The truck exerts a force on the car but the car doesn't exert a force on the truck.\nE) The truck exerts the same amount of force on the car as the car exerts on the truck.",
+    "correct_answer": "E",
+    "concepts": ["Newton's third law", "conservation of momentum", "action-reaction pairs"],
+    "misconceptions": ["larger mass implies larger force", "passive objects don't exert force", "confusing mass and force"]
+  },
+  {
+    "id": 4,
+    "question": "A ball is shot from a cannon horizontally from a cliff. Which of the following paths most closely resembles the trajectory of the ball?",
+    "options": "A) [Straight horizontal line then vertical drop]\nB) [Curved parabolic path]\nC) [Straight diagonal line]\nD) [Curved path that becomes vertical]\nE) [Horizontal then diagonal path]",
+    "correct_answer": "B",
+    "concepts": ["projectile motion", "independence of horizontal and vertical motion", "parabolic trajectory"],
+    "misconceptions": ["path follows direction of initial velocity", "gravity acts after horizontal motion completes", "objects follow straight-line paths"]
+  },
+  {
+    "id": 5,
+    "question": "A book is at rest on a table. Which of the following force pairs are action-reaction pairs according to Newton's third law?",
+    "options": "A) The weight of the book and the normal force of the table on the book.\nB) The force of the book pushing down on the table and the force of the table pushing up on the book.\nC) The weight of the book and the force of the book pushing down on the table.\nD) The weight of the book and the gravitational force of the book on Earth.\nE) None of the above.",
+    "correct_answer": "D",
+    "concepts": ["Newton's third law", "action-reaction pairs", "normal force", "gravitational force"],
+    "misconceptions": ["normal force is reaction to weight", "confusing equilibrium pairs with action-reaction pairs"]
+  },
+  {
+    "id": 6,
+    "question": "A rocket is moving forward in deep space with its engines off. Suddenly, the rocket's engines are turned on and produce a constant thrust. How will the rocket's motion change?",
+    "options": "A) The rocket will instantly begin moving at a new constant velocity.\nB) The rocket will instantly begin moving with a constant acceleration.\nC) The rocket's velocity will gradually increase at a steady rate (constant acceleration).\nD) The rocket's velocity will increase at a rate that also increases (increasing acceleration).\nE) The rocket's motion won't change until it runs out of fuel.",
+    "correct_answer": "C",
+    "concepts": ["Newton's second law", "constant force", "acceleration", "rocket propulsion"],
+    "misconceptions": ["force causes constant velocity", "instant velocity changes", "confusion between velocity and acceleration"]
+  },
+  {
+    "id": 7,
+    "question": "A ball is rolling along a flat horizontal surface with constant velocity. Which statement best describes the forces acting on the ball?",
+    "options": "A) There must be a force pushing the ball forward to maintain its motion.\nB) The force pushing the ball forward is gradually decreasing.\nC) There is a force pushing the ball forward that exactly balances the friction force opposing motion.\nD) There are no horizontal forces acting on the ball.\nE) The only forces are gravity and the normal force from the surface.",
+    "correct_answer": "E",
+    "concepts": ["Newton's first law", "inertia", "force and motion"],
+    "misconceptions": ["motion requires force", "impetus theory", "confusing velocity with acceleration"]
+  },
+  {
+    "id": 8,
+    "question": "A car with a mass of 1000 kg accelerates from 0 to 20 m/s in 10 seconds. What is the net force acting on the car?",
+    "options": "A) 200 N\nB) 1000 N\nC) 2000 N\nD) 20000 N\nE) Not enough information is provided to calculate the force.",
+    "correct_answer": "C",
+    "concepts": ["Newton's second law", "F=ma formula", "acceleration calculation"],
+    "misconceptions": ["confusing mass and weight", "confusing velocity and acceleration", "incorrect application of F=ma"]
+  },
+  {
+    "id": 9,
+    "question": "An astronaut is floating in deep space far from any planets or stars and pushes a wrench away from her. Which statement is correct?",
+    "options": "A) The astronaut will remain stationary while the wrench moves away.\nB) Both the astronaut and the wrench will move in the same direction.\nC) Both the astronaut and the wrench will move in opposite directions.\nD) The wrench will remain stationary while the astronaut moves away.\nE) Neither the astronaut nor the wrench will move since there's no gravity in space.",
+    "correct_answer": "C",
+    "concepts": ["Newton's third law", "conservation of momentum", "action-reaction pairs"],
+    "misconceptions": ["larger mass doesn't move", "motion requires external force", "space prohibits movement"]
+  },
+  {
+    "id": 10,
+    "question": "A basketball and a bowling ball are dropped from the same height. If air resistance is negligible, which statement is true?",
+    "options": "A) The bowling ball will hit the ground first.\nB) The basketball will hit the ground first.\nC) Both balls will hit the ground at the same time.\nD) The result depends on the exact masses of the balls.\nE) The result depends on the sizes of the balls.",
+    "correct_answer": "C",
+    "concepts": ["gravitational acceleration", "free fall", "mass independence in gravity"],
+    "misconceptions": ["heavier objects fall faster", "confusing weight and mass", "ignoring air resistance effects"]
+  },
+  {
+    "id": 11,
+    "question": "A car is traveling along a straight road at a constant speed. The driver suddenly applies the brakes, causing the car to slow down uniformly. During this braking period, the car's:",
+    "options": "A) Velocity is constant and acceleration is zero.\nB) Velocity is decreasing and acceleration is constant.\nC) Velocity is decreasing and acceleration is decreasing.\nD) Velocity is constant and acceleration is constant.\nE) Velocity is decreasing and acceleration is increasing.",
+    "correct_answer": "B",
+    "concepts": ["kinematics", "uniform deceleration", "relationship between velocity and acceleration"],
+    "misconceptions": ["confusing velocity and acceleration", "assuming velocity and acceleration change proportionally"]
+  },
+  {
+    "id": 12,
+    "question": "Two students of equal mass are sitting in identical office chairs facing each other. Student A pushes off student B's knees, causing both chairs to move. Compared to the chair of student B, the chair of student A will:",
+    "options": "A) Move with a greater speed.\nB) Move with the same speed but in the opposite direction.\nC) Move with a lower speed.\nD) Move with the same speed in the same direction.\nE) Not move at all.",
+    "correct_answer": "B",
+    "concepts": ["Newton's third law", "conservation of momentum", "equal and opposite forces"],
+    "misconceptions": ["active force is stronger than reactive force", "confusing force and resulting motion"]
+  },
+  {
+    "id": 13,
+    "question": "A box is pushed across a floor with a constant horizontal force. If the frictional force suddenly doubles but the pushing force remains the same, the box will:",
+    "options": "A) Continue moving at the same constant velocity.\nB) Slow down and eventually stop.\nC) Continue moving but with decreasing velocity.\nD) Continue moving but with increasing velocity.\nE) Immediately stop moving.",
+    "correct_answer": "C",
+    "concepts": ["Newton's second law", "net force", "friction", "acceleration"],
+    "misconceptions": ["confusing velocity and acceleration", "misunderstanding net force effect on motion"]
+  },
+  {
+    "id": 14,
+    "question": "A 2 kg object is subjected to a net force of 10 N to the east. What is its acceleration?",
+    "options": "A) 0.2 m/s²\nB) 5 m/s²\nC) 10 m/s²\nD) 20 m/s²\nE) Cannot be determined from the information given.",
+    "correct_answer": "B",
+    "concepts": ["Newton's second law", "F=ma formula", "direct application of force and mass"],
+    "misconceptions": ["incorrect mathematical application of F=ma", "confusing mass and weight"]
+  },
+  {
+    "id": 15,
+    "question": "A student is riding in an elevator that is moving upward at a constant velocity. The force that the elevator floor exerts on the student is:",
+    "options": "A) Greater than the student's weight.\nB) Equal to the student's weight.\nC) Less than the student's weight.\nD) Zero, because the elevator is doing all the work.\nE) Cannot be determined without knowing the elevator's speed.",
+    "correct_answer": "B",
+    "concepts": ["Newton's first law", "normal force", "equilibrium", "constant velocity"],
+    "misconceptions": ["confusing acceleration with velocity", "misunderstanding normal force in equilibrium"]
+  }
+]
