@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom styles that use Tailwind classes */
+.tutor-message {
+  @apply flex my-4 items-start;
+}
+
+.user-message {
+  @apply flex my-4 items-start flex-row-reverse;
+}
+
+.avatar {
+  @apply flex-shrink-0 h-10 w-10 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center mr-3 ml-0;
+}
+
+.user-message .avatar {
+  @apply ml-3 mr-0;
+}
+
+.message {
+  @apply flex-1 px-4 py-3 rounded-lg max-w-3xl bg-blue-50 dark:bg-blue-900/30 text-gray-800 dark:text-gray-200;
+}
+
+.user-message .message {
+  @apply bg-gray-100 dark:bg-gray-800;
+}
+
+.chat-container {
+  @apply max-h-[60vh] overflow-y-auto;
+}
+
+.formula {
+  @apply font-mono text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/50 px-1 py-0.5 rounded;
+}
+
+.physics-term {
+  @apply font-semibold text-green-600 dark:text-green-400;
+}

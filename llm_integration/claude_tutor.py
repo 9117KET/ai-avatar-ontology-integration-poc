@@ -72,9 +72,22 @@ class ClaudeTutor:
             logger.debug(f"SSL certificate path set to: {cert_path}")
             
             # Create the client with the latest Anthropic API
-            self.client = Anthropic(
-                api_key=self.api_key
-            )
+            # Handle possible proxy settings that may be in environment variables
+            # but are no longer supported by the Anthropic client
+            try:
+                self.client = Anthropic(
+                    api_key=self.api_key
+                )
+            except TypeError as e:
+                if 'proxies' in str(e):
+                    logger.warning("Detected 'proxies' parameter issue with Anthropic client. Trying without proxies.")
+                    # Create client without proxy settings
+                    import inspect
+                    client_params = inspect.signature(Anthropic.__init__).parameters
+                    valid_params = {'api_key': self.api_key}
+                    self.client = Anthropic(**valid_params)
+                else:
+                    raise
             logger.debug("Anthropic client initialized successfully")
         except ImportError as e:
             logger.error(f"Failed to import required library: {e}")
@@ -271,25 +284,55 @@ class ClaudeTutor:
             # Prepare the enhanced prompt with system prompt, context, and user question
             enhanced_prompt = f"{self.system_prompt}\n\nRELEVANT CONTEXT:\n{adapted_context}\n\nUSER QUESTION: {user_question}\n\nPlease answer the question accurately using the provided context and knowledge base. Only use information from the context and general physics knowledge. Do not hallucinate or make up information not supported by the context."
             
-            # Create a message with Claude using the enhanced prompt
-            response = self.client.messages.create(
-                model="claude-3-opus-20240229",
-                max_tokens=1024,
-                messages=[{
-                    "role": "user",
-                    "content": enhanced_prompt
-                }]
-            )
+            # Ensure SSL certificate path environment variables are set before every API call
+            import certifi
+            os.environ['SSL_CERT_FILE'] = certifi.where()
+            os.environ['REQUESTS_CA_BUNDLE'] = certifi.where()
+            os.environ['CURL_CA_BUNDLE'] = certifi.where()
+            
+            logger.debug("Making API call to Claude model")
+            
+            try:
+                # Create a message with Claude using the enhanced prompt
+                # Try the specified model first
+                response = self.client.messages.create(
+                    model="claude-3-opus-20240229",
+                    max_tokens=1024,
+                    messages=[{
+                        "role": "user",
+                        "content": enhanced_prompt
+                    }]
+                )
+                
+            except Exception as model_error:
+                # If the specified model fails, try with a fallback model
+                logger.warning(f"Error with primary model: {str(model_error)}. Trying fallback model.")
+                try:
+                    response = self.client.messages.create(
+                        model="claude-3-haiku-20240307",  # Fallback to a different model
+                        max_tokens=1024,
+                        messages=[{
+                            "role": "user",
+                            "content": enhanced_prompt
+                        }]
+                    )
+                except Exception as fallback_error:
+                    logger.error(f"Fallback model also failed: {str(fallback_error)}")
+                    raise fallback_error
             
             # Extract and return the response text
-            response_text = response.content[0].text
-            logger.debug(f"Generated response: {response_text[:100]}...")
-            
-            # Update student model based on the interaction
-            # In a more advanced implementation, we could analyze the response
-            # to determine which concepts the student understood
-            
-            return response_text
+            if response and hasattr(response, 'content') and len(response.content) > 0:
+                response_text = response.content[0].text
+                logger.debug(f"Generated response: {response_text[:100]}...")
+                
+                # Update student model based on the interaction
+                # In a more advanced implementation, we could analyze the response
+                # to determine which concepts the student understood
+                
+                return response_text
+            else:
+                logger.error(f"Empty or invalid response from Claude API: {response}")
+                raise ValueError("Received empty response from AI service")
             
         except Exception as e:
             logger.error(f"Error in synchronous Claude API call: {type(e).__name__}: {str(e)}")

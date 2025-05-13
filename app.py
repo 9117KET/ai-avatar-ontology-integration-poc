@@ -152,6 +152,11 @@ def index():
     
     return response
 
+@app.route('/favicon.ico')
+def favicon():
+    """Serve the favicon directly from the static folder."""
+    return send_from_directory('static', 'favicon.ico')
+
 @app.after_request
 def after_request(response):
     # Attach new JWT token for stateless rate limiting
