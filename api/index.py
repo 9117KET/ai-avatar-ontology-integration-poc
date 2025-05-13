@@ -7,7 +7,7 @@ sys.path.insert(0, dirname(dirname(__file__)))
 
 # Import and configure the main app
 from app import app
+from serverless_wsgi import handle_request
 
-# This is necessary for Vercel's serverless environment
-if __name__ == "__main__":
-    app.run()
+def handler(event, context):
+    return handle_request(app, event, context)

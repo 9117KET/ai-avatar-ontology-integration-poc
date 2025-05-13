@@ -47,9 +47,8 @@ JWT_ALGORITHM = 'HS256'
 RATE_LIMIT = int(os.getenv('RATE_LIMIT', 100))  # requests per minute
 RATE_LIMIT_WINDOW = int(os.getenv('RATE_LIMIT_WINDOW', 60))  # seconds
 
-# Dictionary to store tutor instances and rate limiting data
-tutor_instances = {}
-rate_limits = {}
+# Vercel/serverless: Use JWT for stateless session and rate limiting
+# Remove in-memory dictionaries
 
 def validate_session_id(session_id):
     """Validate session ID format and content."""
@@ -57,60 +56,66 @@ def validate_session_id(session_id):
         return False
     return True
 
-def check_rate_limit(session_id):
-    """Implement rate limiting per session."""
+# JWT-based stateless rate limiting and session management
+def encode_session_jwt(session_id, count, window_start):
+    payload = {
+        'session_id': session_id,
+        'count': count,
+        'window_start': window_start,
+        'exp': datetime.utcnow() + timedelta(days=7)
+    }
+    return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
+
+def decode_session_jwt(token):
+    try:
+        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        return payload
+    except JWTError:
+        return None
+
+def check_rate_limit_jwt(token):
+    payload = decode_session_jwt(token) if token else None
     current_time = time.time()
-    if session_id not in rate_limits:
-        rate_limits[session_id] = {'count': 1, 'window_start': current_time}
-        return True
-    
-    if current_time - rate_limits[session_id]['window_start'] > RATE_LIMIT_WINDOW:
-        rate_limits[session_id] = {'count': 1, 'window_start': current_time}
-        return True
-    
-    if rate_limits[session_id]['count'] >= RATE_LIMIT:
-        return False
-    
-    rate_limits[session_id]['count'] += 1
-    return True
+    if not payload:
+        # New session
+        return encode_session_jwt('default_session', 1, current_time), True
+    count = payload.get('count', 0)
+    window_start = payload.get('window_start', current_time)
+    if current_time - window_start > RATE_LIMIT_WINDOW:
+        # Reset window
+        return encode_session_jwt(payload['session_id'], 1, current_time), True
+    if count >= RATE_LIMIT:
+        return token, False
+    return encode_session_jwt(payload['session_id'], count + 1, window_start), True
 
 def get_tutor(session_id):
-    """Get or create a tutor instance for a session with security checks.
-    
-    Args:
-        session_id: A string identifier for the user session
-        
-    Returns:
-        ClaudeTutor: An instance of the tutor for this session
-        
-    Raises:
-        ValueError: If the session ID is invalid
-        RuntimeError: If the tutor cannot be initialized (e.g., ontology cannot be loaded)
-    """
+    """Always create a new tutor instance for each request (stateless)."""
     if not validate_session_id(session_id):
         raise ValueError("Invalid session ID")
-    
-    if session_id not in tutor_instances:
-        logger.info(f"Creating new tutor instance for session {session_id}")
-        try:
-            tutor_instances[session_id] = ClaudeTutor(student_id=session_id)
-            logger.info(f"Successfully created tutor for session {session_id}")
-        except Exception as e:
-            logger.error(f"Failed to initialize tutor: {str(e)}")
-            if "ontology" in str(e).lower():
-                raise RuntimeError("Could not load physics knowledge base. Please try again later.")
-            raise
-    
-    return tutor_instances[session_id]
+    try:
+        tutor = ClaudeTutor(student_id=session_id)
+        logger.info(f"Created tutor for session {session_id}")
+        return tutor
+    except Exception as e:
+        logger.error(f"Failed to initialize tutor: {str(e)}")
+        if "ontology" in str(e).lower():
+            raise RuntimeError("Could not load physics knowledge base. Please try again later.")
+        raise
 
 @app.before_request
 def before_request():
     """Security middleware for all requests."""
     # Rate limiting
     session_id = request.args.get('session_id', 'default_session')
-    if not check_rate_limit(session_id):
-        return jsonify({'error': 'Rate limit exceeded'}), 429
-    
+    token = request.headers.get('Authorization')
+    new_token, allowed = check_rate_limit_jwt(token)
+    if not allowed:
+        resp = jsonify({'error': 'Rate limit exceeded'})
+        if new_token:
+            resp.headers['Authorization'] = new_token
+        return resp, 429
+    # Attach the new token to the response in after_request (Flask limitation)
+    request.new_token = new_token
     # Validate session ID
     if not validate_session_id(session_id):
         return jsonify({'error': 'Invalid session ID'}), 400
@@ -145,6 +150,14 @@ def index():
     response.headers['Content-Security-Policy'] = "; ".join(csp_directives)  # CSP
     response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'  # Limits referrer information
     
+    return response
+
+@app.after_request
+def after_request(response):
+    # Attach new JWT token for stateless rate limiting
+    new_token = getattr(request, 'new_token', None)
+    if new_token:
+        response.headers['Authorization'] = new_token
     return response
 
 @app.route('/api/ask', methods=['POST'])
