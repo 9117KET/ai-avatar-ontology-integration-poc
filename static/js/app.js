@@ -102,24 +102,72 @@ document.addEventListener("DOMContentLoaded", () => {
       // Add user message to chat
       this.addMessage(message, "user");
 
-      // Show loading state
-      loadingOverlay.classList.remove("hidden");
-      loadingOverlay.classList.add("flex");
+      // Add typing indicator
+      const typingIndicator = this.addTypingIndicator();
+      
+      // Scroll to the indicator
+      chatContainer.scrollTo({
+        top: chatContainer.scrollHeight,
+        behavior: 'smooth'
+      });
 
       try {
         // Get tutor's response
         const response = await api.fetchTutorResponse(message);
+        
+        // Remove typing indicator
+        typingIndicator.remove();
+        
+        // Add a small delay for better UX
+        await new Promise(resolve => setTimeout(resolve, 300));
+        
+        // Add tutor response
         this.addMessage(response.response, "tutor");
       } catch (error) {
         console.error("Error:", error);
+        
+        // Remove typing indicator
+        typingIndicator.remove();
+        
         this.addMessage(
           "Sorry, I encountered an error. Please try again.",
           "tutor"
         );
-      } finally {
-        loadingOverlay.classList.add("hidden");
-        loadingOverlay.classList.remove("flex");
       }
+    },
+    
+    // Add a typing indicator to the chat
+    addTypingIndicator() {
+      const typingDiv = document.createElement("div");
+      typingDiv.className = "typing-indicator tutor-message";
+      
+      const avatar = document.createElement("div");
+      avatar.className = "avatar";
+      
+      const icon = document.createElement("span");
+      icon.className = "material-icons avatar-icon";
+      icon.textContent = "psychology";
+      avatar.appendChild(icon);
+      
+      const dotsContainer = document.createElement("div");
+      dotsContainer.className = "message";
+      
+      const dots = document.createElement("div");
+      dots.className = "dots flex items-center";
+      
+      // Create the typing dots
+      for (let i = 0; i < 3; i++) {
+        const dot = document.createElement("div");
+        dot.className = "typing-dot";
+        dots.appendChild(dot);
+      }
+      
+      dotsContainer.appendChild(dots);
+      typingDiv.appendChild(avatar);
+      typingDiv.appendChild(dotsContainer);
+      
+      chatContainer.appendChild(typingDiv);
+      return typingDiv;
     },
 
     addMessage(content, type) {
@@ -131,12 +179,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // Use Material Icons instead of images
       const icon = document.createElement("span");
-      icon.className = `material-icons avatar-icon ${
-        type === "tutor"
-          ? "text-blue-600 dark:text-blue-400"
-          : "text-gray-600 dark:text-gray-400"
-      }`;
-      icon.textContent = type === "tutor" ? "smart_toy" : "person";
+      icon.className = "material-icons avatar-icon";
+      icon.textContent = type === "tutor" ? "psychology" : "person";
       avatar.appendChild(icon);
 
       const message = document.createElement("div");

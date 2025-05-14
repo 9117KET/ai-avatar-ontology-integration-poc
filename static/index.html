@@ -1,43 +1,24 @@
 <!DOCTYPE html>
-<!--
-  Main frontend interface for the Physics Tutor application.
-  
-  This HTML file provides the UI for:
-  - An intuitive chat interface between student and AI tutor
-  - Enhanced display of physics formulas and concepts
-  - Responsive design with dark/light mode support
-  
-  It communicates with the backend API to handle questions and
-  deliver ontology-powered physics tutoring.
--->
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AI Physics Tutor</title>
-    <!-- Tailwind CSS (locally built) -->
-    <link rel="stylesheet" href="css/tailwind.css" />
+    <!-- Tailwind CSS -->
+    <link rel="stylesheet" href="/static/css/tailwind.css" />
     <!-- Material Icons -->
-    <link
-      href="https://fonts.googleapis.com/icon?family=Material+Icons"
-      rel="stylesheet"
-    />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
     <!-- Google Fonts -->
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <!-- Custom styles -->
-    <link rel="stylesheet" href="static/css/style.css" />
+    <link rel="stylesheet" href="/static/css/style.css" />
     <!-- Favicon -->
-    <link rel="icon" href="favicon.ico" />
+    <link rel="icon" href="/static/favicon.ico" />
     <!-- Tailwind Config -->
     <script>
       tailwind.config = {
         darkMode: "class",
-        theme: {
-          extend: {},
-        },
+        theme: { extend: {} }
       };
     </script>
   </head>
@@ -46,95 +27,63 @@
     <div class="fixed top-4 right-4 z-50">
       <button
         id="themeToggle"
-        class="p-2 rounded-full bg-white dark:bg-gray-800 shadow-lg"
+        class="p-2 rounded-full bg-white dark:bg-gray-800 shadow-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all"
+        title="Toggle Dark/Light Mode"
       >
-        <span class="material-icons dark:text-yellow-400 text-gray-600"
-          >dark_mode</span
-        >
+        <span class="material-icons dark:text-yellow-400 text-gray-600">dark_mode</span>
       </button>
     </div>
 
-    <div class="container mx-auto px-4 py-8">
-      <div class="max-w-6xl mx-auto">
+    <div class="container mx-auto px-4 py-8 flex justify-center">
+      <div class="w-full max-w-2xl">
         <!-- Header -->
-        <header class="text-center mb-8">
-          <h1 class="text-4xl font-bold text-gray-800 dark:text-white mb-2">
+        <header class="text-center mb-4">
+          <h1 class="text-3xl font-bold text-gray-800 dark:text-white">
             AI Physics Tutor
           </h1>
-          <p class="text-gray-600 dark:text-gray-300">
-            Your personal guide to understanding physics concepts
-          </p>
         </header>
 
-        <!-- Main Content -->
-        <div class="max-w-3xl mx-auto">
-          <!-- Chat Interface -->
-            <div
-              class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden"
-            >
-              <!-- Chat Messages -->
-              <div id="chatContainer" class="chat-container p-4">
-                <div class="welcome-message">
-                  <div class="tutor-message">
-                    <div class="avatar">
-                      <span
-                        class="material-icons avatar-icon text-blue-600 dark:text-blue-400"
-                        >smart_toy</span
-                      >
-                    </div>
-                    <div class="message">
-                      <p class="text-gray-800 dark:text-gray-200">
-                        Welcome! I'm your AI Physics Tutor powered by an extensive physics ontology. I can help you understand concepts like:
-                      </p>
-                      <ul class="text-gray-800 dark:text-gray-200 list-disc ml-6 mt-2">
-                        <li>Newton's laws of motion</li>
-                        <li>Forces and interactions</li>
-                        <li>Energy and work</li>
-                        <li>And many other physics topics</li>
-                      </ul>
-                      <p class="text-gray-800 dark:text-gray-200 mt-2">
-                        What would you like to learn about today?
-                      </p>
-                    </div>
-                  </div>
+        <!-- Chat Interface -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden border border-gray-200 dark:border-gray-700">
+          <!-- Chat Header -->
+          <div class="px-4 py-2 border-b border-gray-200 dark:border-gray-700 bg-blue-50 dark:bg-gray-800 flex items-center">
+            <div class="flex items-center">
+              <span class="material-icons text-blue-500 mr-2">psychology</span>
+              <h3 class="font-medium text-gray-800 dark:text-white">Physics Tutor</h3>
+            </div>
+          </div>
+          
+          <!-- Chat Messages -->
+          <div id="chatContainer" class="chat-container">
+            <div class="welcome-message">
+              <div class="tutor-message">
+                <div class="avatar">
+                  <span class="material-icons avatar-icon">psychology</span>
+                </div>
+                <div class="message">
+                  <p class="text-gray-800 dark:text-gray-200">
+                    Welcome! I can help you understand physics concepts like Newton's laws, forces, energy, and more. What would you like to learn about today?
+                  </p>
                 </div>
               </div>
+            </div>
+          </div>
 
-              <!-- Input Area -->
-              <div class="border-t border-gray-200 dark:border-gray-700 p-4">
-                <!-- Suggested Questions -->
-                <div class="mb-3">
-                  <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">Try asking:</p>
-                  <div class="flex flex-wrap gap-2">
-                    <button class="suggestion-btn text-xs bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/30 dark:hover:bg-blue-800/50 text-blue-600 dark:text-blue-400 px-3 py-1 rounded-full transition-colors">
-                      What is Newton's First Law?
-                    </button>
-                    <button class="suggestion-btn text-xs bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/30 dark:hover:bg-blue-800/50 text-blue-600 dark:text-blue-400 px-3 py-1 rounded-full transition-colors">
-                      Explain the concept of force
-                    </button>
-                    <button class="suggestion-btn text-xs bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/30 dark:hover:bg-blue-800/50 text-blue-600 dark:text-blue-400 px-3 py-1 rounded-full transition-colors">
-                      How do I calculate kinetic energy?
-                    </button>
-                  </div>
-                </div>
-                
-                <!-- Question Input -->
-                <div class="flex items-center space-x-2">
-                  <input
-                    type="text"
-                    id="questionInput"
-                    class="flex-1 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Ask your physics question..."
-                  />
-                  <button
-                    id="sendButton"
-                    class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200 flex items-center"
-                  >
-                    <span class="material-icons mr-1">send</span>
-                    Send
-                  </button>
-                </div>
-              </div>
+          <!-- Input Area -->
+          <div class="border-t border-gray-200 dark:border-gray-700 p-3 bg-gray-50 dark:bg-gray-800">
+            <div class="flex items-center">
+              <input
+                type="text"
+                id="questionInput"
+                class="w-full px-3 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                placeholder="Ask your physics question..."
+              />
+              <button
+                id="sendButton"
+                class="ml-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors duration-200 flex items-center"
+              >
+                <span class="material-icons">send</span>
+              </button>
             </div>
           </div>
         </div>
@@ -146,19 +95,13 @@
       id="loadingOverlay"
       class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50"
     >
-      <div
-        class="bg-white dark:bg-gray-800 rounded-lg p-6 flex items-center space-x-4"
-      >
-        <div
-          class="animate-spin rounded-full h-8 w-8 border-4 border-blue-600 border-t-transparent"
-        ></div>
-        <p class="text-gray-800 dark:text-gray-200">
-          Processing your question...
-        </p>
+      <div class="bg-white dark:bg-gray-800 rounded-lg p-4 flex items-center space-x-3">
+        <div class="animate-spin rounded-full h-6 w-6 border-4 border-blue-600 border-t-transparent"></div>
+        <p class="text-gray-800 dark:text-gray-200">Processing...</p>
       </div>
     </div>
 
     <!-- Scripts -->
-    <script src="static/js/app.js"></script>
+    <script src="/static/js/app.js"></script>
   </body>
 </html>
