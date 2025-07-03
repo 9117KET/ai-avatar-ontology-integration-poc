@@ -12,11 +12,13 @@ import os
 import logging
 import time
 from datetime import datetime, timedelta
-from flask import Flask, request, jsonify, send_from_directory
+from typing import Tuple, Dict, Any, Optional
+from flask import Flask, request, jsonify, send_from_directory, Response
 from flask_cors import CORS
 from jose import jwt
 from jose.exceptions import JWTError
 from llm_integration.claude_tutor import ClaudeTutor
+from utils.ssl_config import configure_ssl_certificates
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -26,14 +28,10 @@ logger = logging.getLogger(__name__)
 app = Flask(__name__, static_folder='static')
 
 # Configure SSL certificates for requests (fixes Anthropic client issues)
-import certifi
-os.environ['SSL_CERT_FILE'] = certifi.where()
-os.environ['REQUESTS_CA_BUNDLE'] = certifi.where()
-os.environ['CURL_CA_BUNDLE'] = certifi.where()
-logger.debug(f"SSL certificate path set to: {certifi.where()}")
+configure_ssl_certificates()
 
 # Configure CORS with appropriate origins
-allowed_origins = os.getenv('ALLOWED_ORIGINS', '*').split(',')
+allowed_origins = os.getenv('ALLOWED_ORIGINS', 'http://localhost:5000,http://127.0.0.1:5000').split(',')
 CORS(app, resources={r"/*": {"origins": allowed_origins}})
 logger.info(f"CORS configured with allowed origins: {allowed_origins}")
 
@@ -42,22 +40,24 @@ app.config['JSON_SORT_KEYS'] = False  # Preserve response JSON order
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 31536000  # 1 year cache for static files
 
 # Security configurations
-JWT_SECRET = os.getenv('JWT_SECRET', 'your-secret-key')  # Should be set in production
+JWT_SECRET = os.getenv('JWT_SECRET')
+if not JWT_SECRET:
+    raise ValueError("JWT_SECRET environment variable is required for security")
 JWT_ALGORITHM = 'HS256'
-RATE_LIMIT = int(os.getenv('RATE_LIMIT', 100))  # requests per minute
-RATE_LIMIT_WINDOW = int(os.getenv('RATE_LIMIT_WINDOW', 60))  # seconds
+RATE_LIMIT = int(os.getenv('RATE_LIMIT', '100'))
+RATE_LIMIT_WINDOW = int(os.getenv('RATE_LIMIT_WINDOW', '60'))
 
 # Vercel/serverless: Use JWT for stateless session and rate limiting
 # Remove in-memory dictionaries
 
-def validate_session_id(session_id):
+def validate_session_id(session_id: str) -> bool:
     """Validate session ID format and content."""
     if not session_id or len(session_id) > 64:
         return False
     return True
 
 # JWT-based stateless rate limiting and session management
-def encode_session_jwt(session_id, count, window_start):
+def encode_session_jwt(session_id: str, count: int, window_start: float) -> str:
     payload = {
         'session_id': session_id,
         'count': count,
@@ -66,14 +66,14 @@ def encode_session_jwt(session_id, count, window_start):
     }
     return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
 
-def decode_session_jwt(token):
+def decode_session_jwt(token: str) -> Optional[Dict[str, Any]]:
     try:
         payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
         return payload
     except JWTError:
         return None
 
-def check_rate_limit_jwt(token):
+def check_rate_limit_jwt(token: Optional[str]) -> Tuple[str, bool]:
     payload = decode_session_jwt(token) if token else None
     current_time = time.time()
     if not payload:
@@ -88,7 +88,7 @@ def check_rate_limit_jwt(token):
         return token, False
     return encode_session_jwt(payload['session_id'], count + 1, window_start), True
 
-def get_tutor(session_id):
+def get_tutor(session_id: str) -> ClaudeTutor:
     """Always create a new tutor instance for each request (stateless)."""
     if not validate_session_id(session_id):
         raise ValueError("Invalid session ID")

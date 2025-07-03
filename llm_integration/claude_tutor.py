@@ -11,11 +11,11 @@ This module serves as the central component that:
 
 import os
 import logging
-import certifi
 from typing import List, Dict, Optional
 from dotenv import load_dotenv
 from anthropic import Anthropic
 from owlready2 import get_ontology, World
+from utils.ssl_config import configure_ssl_certificates
 
 # Import the StudentModel
 from llm_integration.student_model import StudentModel
@@ -57,19 +57,15 @@ class ClaudeTutor:
         
         try:
             # Initialize the Anthropic client with proper error handling
-            logger.debug("Initializing Anthropic client with API key...")
+            logger.debug("Initializing Anthropic client...")
             
             # Ensure API key is properly formatted (should start with "sk-ant-")
             if not self.api_key.startswith("sk-ant-"):
-                logger.error(f"API key appears to be in wrong format. Should start with 'sk-ant-'")
+                logger.error("API key appears to be in wrong format. Should start with 'sk-ant-'")
                 raise ValueError("Invalid API key format")
             
-            # Set SSL certificate path environment variables
-            cert_path = certifi.where()
-            os.environ['SSL_CERT_FILE'] = cert_path
-            os.environ['REQUESTS_CA_BUNDLE'] = cert_path
-            os.environ['CURL_CA_BUNDLE'] = cert_path
-            logger.debug(f"SSL certificate path set to: {cert_path}")
+            # Configure SSL certificates
+            configure_ssl_certificates()
             
             # Create the client with the latest Anthropic API
             # Handle possible proxy settings that may be in environment variables
@@ -284,11 +280,8 @@ class ClaudeTutor:
             # Prepare the enhanced prompt with system prompt, context, and user question
             enhanced_prompt = f"{self.system_prompt}\n\nRELEVANT CONTEXT:\n{adapted_context}\n\nUSER QUESTION: {user_question}\n\nPlease answer the question accurately using the provided context and knowledge base. Only use information from the context and general physics knowledge. Do not hallucinate or make up information not supported by the context."
             
-            # Ensure SSL certificate path environment variables are set before every API call
-            import certifi
-            os.environ['SSL_CERT_FILE'] = certifi.where()
-            os.environ['REQUESTS_CA_BUNDLE'] = certifi.where()
-            os.environ['CURL_CA_BUNDLE'] = certifi.where()
+            # Ensure SSL certificates are configured before API call
+            configure_ssl_certificates()
             
             logger.debug("Making API call to Claude model")
             
