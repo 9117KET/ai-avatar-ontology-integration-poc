@@ -129,10 +129,20 @@ document.addEventListener("DOMContentLoaded", () => {
         // Remove typing indicator
         typingIndicator.remove();
         
-        this.addMessage(
-          "Sorry, I encountered an error. Please try again.",
-          "tutor"
-        );
+        // Provide more specific error messages
+        let errorMessage = "Sorry, I encountered an error. Please try again.";
+        
+        if (error.message.includes("AI service configuration error")) {
+          errorMessage = "🔧 The AI service is not properly configured. Please contact support.";
+        } else if (error.message.includes("Failed to initialize AI tutor")) {
+          errorMessage = "⚠️ Unable to start the AI tutor. Please check your configuration and try again.";
+        } else if (error.message.includes("Rate limit exceeded")) {
+          errorMessage = "⏰ You've sent too many messages. Please wait a moment and try again.";
+        } else if (error.message.includes("Network response was not ok")) {
+          errorMessage = "🌐 Network error. Please check your connection and try again.";
+        }
+        
+        this.addMessage(errorMessage, "tutor");
       }
     },
     

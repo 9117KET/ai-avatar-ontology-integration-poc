@@ -1,5 +1,5 @@
 # API and LLM Integration
-anthropic>=0.7.0     # Claude API client for AI tutoring capabilities
+anthropic>=0.60.0    # Claude API client for AI tutoring capabilities
 python-dotenv>=1.0.0 # Environment variable management for API keys
 
 # Knowledge Representation
@@ -17,4 +17,8 @@ bcrypt>=4.0.1        # Password hashing
 python-multipart>=0.0.6  # Form data handling
 
 # Natural Language Processing
-nltk>=3.8.1          # Natural language toolkit for text processing 
+nltk>=3.8.1          # Natural language toolkit for text processing (optional)
+
+# Additional Dependencies
+certifi>=2023.5.7    # SSL certificate bundle
+urllib3>=2.0.2       # HTTP client library

@@ -19,10 +19,37 @@ from jose import jwt
 from jose.exceptions import JWTError
 from llm_integration.claude_tutor import ClaudeTutor
 from utils.ssl_config import configure_ssl_certificates
+from config.settings import load_config
+from utils.error_handler import ValidationError, handle_api_error
 
-# Set up logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+# Load centralized configuration
+try:
+    app_config, security_config, api_config = load_config()
+    logger = logging.getLogger(__name__)
+    logging.basicConfig(level=getattr(logging, app_config.log_level))
+    logger.info("Configuration loaded successfully")
+except Exception as e:
+    # Fallback to basic configuration if centralized config fails
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
+    logger.error(f"Failed to load centralized configuration: {e}")
+    logger.info("Using fallback configuration")
+    
+    # Fallback configuration
+    class FallbackConfig:
+        host = os.getenv('HOST', '0.0.0.0')
+        port = int(os.getenv('PORT', '5000'))
+        debug = os.getenv('DEBUG', 'False').lower() == 'true'
+        
+    class FallbackSecurityConfig:
+        jwt_secret = os.getenv('JWT_SECRET')
+        jwt_algorithm = 'HS256'
+        rate_limit = int(os.getenv('RATE_LIMIT', '100'))
+        rate_limit_window = int(os.getenv('RATE_LIMIT_WINDOW', '60'))
+        allowed_origins = os.getenv('ALLOWED_ORIGINS', 'http://localhost:5000,http://127.0.0.1:5000').split(',')
+        
+    app_config = FallbackConfig()
+    security_config = FallbackSecurityConfig()
 
 # Initialize Flask app
 app = Flask(__name__, static_folder='static')
@@ -31,7 +58,11 @@ app = Flask(__name__, static_folder='static')
 configure_ssl_certificates()
 
 # Configure CORS with appropriate origins
-allowed_origins = os.getenv('ALLOWED_ORIGINS', 'http://localhost:5000,http://127.0.0.1:5000').split(',')
+if hasattr(security_config, 'allowed_origins'):
+    allowed_origins = security_config.allowed_origins
+else:
+    allowed_origins = os.getenv('ALLOWED_ORIGINS', 'http://localhost:5000,http://127.0.0.1:5000').split(',')
+
 CORS(app, resources={r"/*": {"origins": allowed_origins}})
 logger.info(f"CORS configured with allowed origins: {allowed_origins}")
 
@@ -40,12 +71,12 @@ app.config['JSON_SORT_KEYS'] = False  # Preserve response JSON order
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 31536000  # 1 year cache for static files
 
 # Security configurations
-JWT_SECRET = os.getenv('JWT_SECRET')
-if not JWT_SECRET:
+if not security_config.jwt_secret:
     raise ValueError("JWT_SECRET environment variable is required for security")
-JWT_ALGORITHM = 'HS256'
-RATE_LIMIT = int(os.getenv('RATE_LIMIT', '100'))
-RATE_LIMIT_WINDOW = int(os.getenv('RATE_LIMIT_WINDOW', '60'))
+JWT_SECRET = security_config.jwt_secret
+JWT_ALGORITHM = security_config.jwt_algorithm
+RATE_LIMIT = security_config.rate_limit
+RATE_LIMIT_WINDOW = security_config.rate_limit_window
 
 # Vercel/serverless: Use JWT for stateless session and rate limiting
 # Remove in-memory dictionaries
@@ -105,8 +136,19 @@ def get_tutor(session_id: str) -> ClaudeTutor:
 @app.before_request
 def before_request():
     """Security middleware for all requests."""
+    # Skip validation for static files and non-API routes
+    if request.endpoint in ['index', 'favicon'] or request.path.startswith('/static'):
+        return
+        
     # Rate limiting
-    session_id = request.args.get('session_id', 'default_session')
+    session_id = 'default_session'
+    
+    # Try to get session_id from different sources
+    if request.is_json and request.get_json():
+        session_id = request.get_json().get('session_id', 'default_session')
+    else:
+        session_id = request.args.get('session_id', 'default_session')
+    
     token = request.headers.get('Authorization')
     new_token, allowed = check_rate_limit_jwt(token)
     if not allowed:
@@ -141,7 +183,7 @@ def index():
         "default-src 'self'",
         "script-src 'self' 'unsafe-inline' 'unsafe-eval' cdn.tailwindcss.com *.vercel.live vercel.live",
         "style-src 'self' 'unsafe-inline' fonts.googleapis.com cdn.tailwindcss.com",
-        "font-src 'self' fonts.gstatic.com",
+        "font-src 'self' fonts.gstatic.com data:",
         "img-src 'self' data: blob:",
         "connect-src 'self' *.vercel.app api2.amplitude.com o4505129952280576.ingest.sentry.io",
         "frame-src 'self'",
@@ -201,9 +243,16 @@ def ask_tutor():
         try:
             tutor = get_tutor(session_id)
         except ValueError as ve:
+            logger.error(f"Validation error creating tutor: {ve}")
+            if "API" in str(ve) or "api_key" in str(ve).lower():
+                return jsonify({'error': 'AI service configuration error. Please contact support.'}), 503
             return jsonify({'error': str(ve)}), 400
         except RuntimeError as re:
+            logger.error(f"Runtime error creating tutor: {re}")
             return jsonify({'error': str(re)}), 503  # Service Unavailable
+        except Exception as e:
+            logger.error(f"Unexpected error creating tutor: {e}")
+            return jsonify({'error': 'Failed to initialize AI tutor. Please try again.'}), 500
         
         # Get the tutor's response
         try:
@@ -216,27 +265,14 @@ def ask_tutor():
                 'timestamp': datetime.now().isoformat()
             })
             
-        except ValueError as ve:
-            # Handle specific validation errors
-            logger.warning(f"Validation error: {ve}")
-            return jsonify({'error': str(ve)}), 400
-            
         except Exception as e:
-            # Handle API or processing errors
-            error_message = str(e)
-            if "api_key" in error_message.lower() or "authentication" in error_message.lower():
-                logger.error(f"API authentication error: {e}")
-                return jsonify({'error': 'AI service authentication error'}), 503
-            elif "timeout" in error_message.lower() or "timed out" in error_message.lower():
-                logger.error(f"Request timeout: {e}")
-                return jsonify({'error': 'Request timed out. Please try again.'}), 504
-            else:
-                logger.error(f"Error generating response: {e}")
-                return jsonify({'error': 'Failed to generate response'}), 500
+            # Use centralized error handling
+            return handle_api_error(e)
     
     except Exception as e:
+        # Use centralized error handling for unexpected errors
         logger.error(f"Unexpected error processing question: {e}")
-        return jsonify({'error': 'Internal server error'}), 500
+        return handle_api_error(e)
 
 if __name__ == '__main__':
     # Print startup banner
@@ -245,10 +281,10 @@ if __name__ == '__main__':
     print("Version 1.0.0 | Flask WSGI Server")
     print("=" * 80)
     
-    # Get configuration from environment variables
-    host = os.getenv('HOST', '0.0.0.0')
-    port = int(os.getenv('PORT', '5000'))
-    debug = os.getenv('DEBUG', 'False').lower() == 'true'
+    # Use centralized configuration
+    host = app_config.host
+    port = app_config.port
+    debug = app_config.debug
     
     # Log startup information
     logger.info(f"Starting AI Physics Tutor server at http://{host}:{port}")

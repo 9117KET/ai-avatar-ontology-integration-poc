@@ -1,7 +1,7 @@
 """Configuration settings for the AI Physics Tutor application."""
 
 import os
-from typing import List
+from typing import List, Tuple
 from dataclasses import dataclass
 
 
@@ -55,7 +55,7 @@ class AppConfig:
         self.log_level = os.getenv('LOG_LEVEL', self.log_level)
 
 
-def load_config() -> tuple[AppConfig, SecurityConfig, APIConfig]:
+def load_config() -> Tuple[AppConfig, SecurityConfig, APIConfig]:
     """Load configuration from environment variables."""
     security_config = SecurityConfig(
         jwt_secret=os.getenv('JWT_SECRET'),

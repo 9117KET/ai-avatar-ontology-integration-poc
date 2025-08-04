@@ -53,37 +53,26 @@ class ClaudeTutor:
         if not self.api_key:
             logger.error("ANTHROPIC_API_KEY environment variable is not set")
             raise ValueError("ANTHROPIC_API_KEY environment variable is not set")
-        logger.debug("API key loaded successfully")
+        
+        # Validate API key format before logging success
+        if not self.api_key.startswith("sk-ant-"):
+            logger.error("API key appears to be in wrong format")
+            raise ValueError("API key appears to be in wrong format. Should start with 'sk-ant-'")
+        
+        logger.debug("API key validated successfully")
         
         try:
             # Initialize the Anthropic client with proper error handling
             logger.debug("Initializing Anthropic client...")
             
-            # Ensure API key is properly formatted (should start with "sk-ant-")
-            if not self.api_key.startswith("sk-ant-"):
-                logger.error("API key appears to be in wrong format. Should start with 'sk-ant-'")
-                raise ValueError("Invalid API key format")
+            # API key validation already done above
             
             # Configure SSL certificates
             configure_ssl_certificates()
             
             # Create the client with the latest Anthropic API
-            # Handle possible proxy settings that may be in environment variables
-            # but are no longer supported by the Anthropic client
-            try:
-                self.client = Anthropic(
-                    api_key=self.api_key
-                )
-            except TypeError as e:
-                if 'proxies' in str(e):
-                    logger.warning("Detected 'proxies' parameter issue with Anthropic client. Trying without proxies.")
-                    # Create client without proxy settings
-                    import inspect
-                    client_params = inspect.signature(Anthropic.__init__).parameters
-                    valid_params = {'api_key': self.api_key}
-                    self.client = Anthropic(**valid_params)
-                else:
-                    raise
+            self.client = Anthropic(api_key=self.api_key)
+            logger.debug("Anthropic client created successfully")
             logger.debug("Anthropic client initialized successfully")
         except ImportError as e:
             logger.error(f"Failed to import required library: {e}")
@@ -96,8 +85,28 @@ class ClaudeTutor:
         
         # Load the ontology
         try:
+            # Try multiple possible paths for the ontology file
             current_dir = os.path.dirname(os.path.abspath(__file__))
-            ontology_path = os.path.join(os.path.dirname(current_dir), 'ontology', 'schemas', 'physics_tutor.owl')
+            possible_paths = [
+                # Development path (from llm_integration directory)
+                os.path.join(os.path.dirname(current_dir), 'ontology', 'schemas', 'physics_tutor.owl'),
+                # Alternative path (from root directory)
+                os.path.join(current_dir, '..', 'ontology', 'schemas', 'physics_tutor.owl'),
+                # Deployed path (same level)
+                os.path.join(current_dir, 'ontology', 'schemas', 'physics_tutor.owl'),
+                # Environment variable override
+                os.getenv('ONTOLOGY_PATH', '')
+            ]
+            
+            ontology_path = None
+            for path in possible_paths:
+                if path and os.path.exists(path):
+                    ontology_path = os.path.abspath(path)
+                    break
+            
+            if not ontology_path:
+                raise FileNotFoundError(f"Could not find ontology file. Searched paths: {possible_paths}")
+            
             logger.debug(f"Loading ontology from: {ontology_path}")
             self.onto = get_ontology(f"file://{ontology_path}").load()
             logger.debug("Ontology loaded successfully")
@@ -475,11 +484,14 @@ class ClaudeTutor:
                           list(self.onto.search(type=self.onto.Unit))
             
             # Tokenize the question
-            from nltk.tokenize import word_tokenize
             try:
+                from nltk.tokenize import word_tokenize
                 tokens = word_tokenize(question_lower)
-            except:
+            except ImportError:
                 # If NLTK is not available, fall back to simple splitting
+                tokens = question_lower.split()
+            except Exception:
+                # If NLTK fails for any other reason, fall back to simple splitting
                 tokens = question_lower.split()
             
             # Find any concept whose name (or part of it) appears in the tokens

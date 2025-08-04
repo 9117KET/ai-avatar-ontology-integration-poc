@@ -1,19 +1,36 @@
 from flask import Flask, render_template, request, jsonify
 import os
+import logging
 from dotenv import load_dotenv
 from owlready2 import get_ontology
 import anthropic
 import json
+
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Load environment variables
 load_dotenv()
 
 app = Flask(__name__)
 
-# Load the ontology
-current_dir = os.path.dirname(os.path.abspath(__file__))
-ontology_path = os.path.join(current_dir, 'schemas', 'physics_tutor.owl')
-onto = get_ontology(f"file://{ontology_path}").load()
+# Load the ontology with proper exception handling
+onto = None
+try:
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    ontology_path = os.path.join(current_dir, 'schemas', 'physics_tutor.owl')
+    
+    if not os.path.exists(ontology_path):
+        raise FileNotFoundError(f"Ontology file not found at: {ontology_path}")
+    
+    logger.info(f"Loading ontology from: {ontology_path}")
+    onto = get_ontology(f"file://{ontology_path}").load()
+    logger.info("Ontology loaded successfully")
+except Exception as e:
+    logger.error(f"Failed to load ontology: {e}")
+    logger.error("Application will continue without ontology support")
+    onto = None
 
 # Initialize Anthropic client
 client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
@@ -37,6 +54,10 @@ def query():
 
 def get_ontology_context(query):
     """Extract relevant context from the ontology based on the query"""
+    if not onto:
+        logger.warning("Ontology not available, returning empty context")
+        return ""
+    
     context = []
     
     # Keywords to look for in the query
@@ -63,33 +84,51 @@ def get_ontology_context(query):
     # Look for Newton's Laws
     if any(term in ["newton", "law", "force", "motion"] for term in query_terms):
         for law in ["NewtonsFirstLaw", "NewtonsSecondLaw", "NewtonsThirdLaw"]:
-            law_obj = onto.search_one(iri=f"*{law}")
-            if law_obj:
-                context_parts.append(f"{law}: {law_obj.hasDefinition[0]}")
+            try:
+                law_obj = onto.search_one(iri=f"*{law}")
+                if law_obj and hasattr(law_obj, 'hasDefinition') and law_obj.hasDefinition:
+                    context_parts.append(f"{law}: {law_obj.hasDefinition[0]}")
+            except (AttributeError, IndexError) as e:
+                logger.warning(f"Could not access definition for {law}: {e}")
                 
-                # Add prerequisites
-                prerequisites = list(law_obj.hasPrerequisite)
-                if prerequisites:
-                    prereq_text = ", ".join([prereq.name for prereq in prerequisites])
-                    context_parts.append(f"{law} prerequisites: {prereq_text}")
+                    # Add prerequisites
+                    try:
+                        prerequisites = list(law_obj.hasPrerequisite) if hasattr(law_obj, 'hasPrerequisite') else []
+                        if prerequisites:
+                            prereq_text = ", ".join([getattr(prereq, 'name', str(prereq)) for prereq in prerequisites])
+                            context_parts.append(f"{law} prerequisites: {prereq_text}")
+                    except Exception as e:
+                        logger.warning(f"Could not access prerequisites for {law}: {e}")
                 
-                # Add formulas if available
-                formulas = list(law_obj.hasFormula)
-                for formula in formulas:
-                    context_parts.append(f"{law} formula: {formula.hasDefinition[0]}")
+                    # Add formulas if available
+                    try:
+                        formulas = list(law_obj.hasFormula) if hasattr(law_obj, 'hasFormula') else []
+                        for formula in formulas:
+                            if hasattr(formula, 'hasDefinition') and formula.hasDefinition:
+                                context_parts.append(f"{law} formula: {formula.hasDefinition[0]}")
+                    except Exception as e:
+                        logger.warning(f"Could not access formulas for {law}: {e}")
     
     # Look for physical quantities
     for quantity in ["Force", "Mass", "Acceleration", "Velocity", "Position", "Time"]:
         if quantity.lower() in query.lower():
-            quantity_obj = onto.search_one(iri=f"*{quantity}")
-            if quantity_obj:
-                definition = getattr(quantity_obj, "hasDefinition", [""])[0]
-                context_parts.append(f"{quantity}: {definition}")
-                
-                # Add units
-                units = list(quantity_obj.hasUnit)
-                for unit in units:
-                    context_parts.append(f"{quantity} unit: {unit.name}")
+            try:
+                quantity_obj = onto.search_one(iri=f"*{quantity}")
+                if quantity_obj:
+                    definition = getattr(quantity_obj, "hasDefinition", [""])
+                    if definition and len(definition) > 0:
+                        context_parts.append(f"{quantity}: {definition[0]}")
+                    
+                    # Add units
+                    try:
+                        units = list(quantity_obj.hasUnit) if hasattr(quantity_obj, 'hasUnit') else []
+                        for unit in units:
+                            unit_name = getattr(unit, 'name', str(unit))
+                            context_parts.append(f"{quantity} unit: {unit_name}")
+                    except Exception as e:
+                        logger.warning(f"Could not access units for {quantity}: {e}")
+            except Exception as e:
+                logger.warning(f"Could not access quantity {quantity}: {e}")
     
     return "\n".join(context_parts)
 

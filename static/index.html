@@ -4,8 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AI Physics Tutor</title>
-    <!-- Tailwind CSS -->
-    <link rel="stylesheet" href="/static/css/tailwind.css" />
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
     <!-- Material Icons -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
     <!-- Google Fonts -->
@@ -18,7 +18,13 @@
     <script>
       tailwind.config = {
         darkMode: "class",
-        theme: { extend: {} }
+        theme: { 
+          extend: {
+            fontFamily: {
+              sans: ['Inter', 'system-ui', 'sans-serif']
+            }
+          } 
+        }
       };
     </script>
   </head>
